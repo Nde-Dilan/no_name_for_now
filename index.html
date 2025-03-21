@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Translation System for Cameroonian Languages</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="nav-left">
+          <button class="menu-btn"><i class="fas fa-bars"></i></button>
+        </div>
+        <div class="nav-right">
+          <button class="history-btn"><i class="fas fa-history"></i></button>
+          <!-- <button class="favorites-btn"><i class="fas fa-heart"></i></button> -->
+          <button class="settings-btn"><i class="fas fa-cog"></i></button>
+          <button class="login-btn">Log in</button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="logo-container">
+          <div class="logo">
+            <img src="camMT.png" alt="Translation App Logo" />
+          </div>
+          <h1 class="app-name">CamMT</h1>
+          <h2 class="language-pair">Dictionary French - Ghomálá'</h2>
+        </div>
+
+        <div class="translator">
+          <div class="language-selector">
+            <div class="dropdown">
+              <button class="dropdown-btn">
+                French <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="dropdown-content" id="source-languages">
+                <a href="#" data-lang="french">French</a>
+                <a href="#" data-lang="english">English</a>
+                <a href="#" data-lang="duala">Duala</a>
+                <a href="#" data-lang="basaa">Basaa</a>
+              </div>
+            </div>
+
+            <button class="swap-btn">
+              <i class="fas fa-exchange-alt"></i>
+            </button>
+
+            <div class="dropdown">
+              <button class="dropdown-btn">
+                Ghomálá' <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="dropdown-content" id="target-languages">
+                <a href="#" data-lang="ghomala">Ghomálá'</a>
+                <a href="#" data-lang="bulu">Bulu</a>
+                <a href="#" data-lang="ewondo">Ewondo</a>
+                <a href="#" data-lang="fulfulde">Fulfulde</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="translation-input">
+            <input
+              type="text"
+              id="translation-text"
+              placeholder="Translate from French into Ghomálá'"
+            />
+            <button class="keyboard-btn">
+              <i class="fas fa-keyboard"></i>
+            </button>
+            <button class="search-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>
+          CamMT provides not only dictionary <span class="language-pair-footer">French - Ghomálá'</span>, but also
+          dictionaries for every existing pairs of languages - online and for
+          free.
+        </p>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

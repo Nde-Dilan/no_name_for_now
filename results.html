@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Results - Translation System</title>
+    <link rel="stylesheet" href="results.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="nav-left">
+                <button class="menu-btn"><i class="fas fa-bars"></i></button>
+            </div>
+            <div class="nav-right">
+                <button class="history-btn"><i class="fas fa-history"></i></button>
+                <!-- <button class="favorites-btn"><i class="fas fa-heart"></i></button> -->
+                <button class="settings-btn"><i class="fas fa-cog"></i></button>
+                <button class="back-btn"><a href="./index.html">Back</a></button>
+            </div>
+        </header>
+        
+        <main class="results-page">
+            <div class="search-sidebar">
+                <div class="language-selector compact">
+                    <div class="dropdown">
+                        <button class="dropdown-btn">French <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content" id="source-languages">
+                            <a href="#" data-lang="french">French</a>
+                            <a href="#" data-lang="english">English</a>
+                            <a href="#" data-lang="duala">Duala</a>
+                            <a href="#" data-lang="basaa">Basaa</a>
+                        </div>
+                    </div>
+                    
+                    <button class="swap-btn"><i class="fas fa-exchange-alt"></i></button>
+                    
+                    <div class="dropdown">
+                        <button class="dropdown-btn">Ghomálá' <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content" id="target-languages">
+                            <a href="#" data-lang="ghomala">Ghomálá'</a>
+                            <a href="#" data-lang="bulu">Bulu</a>
+                            <a href="#" data-lang="ewondo">Ewondo</a>
+                            <a href="#" data-lang="fulfulde">Fulfulde</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="search-input-container">
+                    <input type="text" id="search-input" placeholder="Translate from French into Ghomálá'" value="&quot;bonjour bonjour famille, vous avez bien dormi&quot;">
+                    <button class="keyboard-btn"><i class="fas fa-keyboard"></i></button>
+                    <button class="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                
+                <div class="recent-searches">
+                    <div class="search-item active">"bonjour bonjour famille"</div>
+                    <div class="search-item">des que sa fini</div>
+                    <div class="search-item">fille</div>
+                    <div class="search-item">je mange</div>
+                    <div class="search-item">manger</div>
+                    <div class="search-item">parler</div>
+                </div>
+            </div>
+            
+            <div class="results-container">
+                <h2 class="search-query">Translation of &quot;bonjour bonjour famille, vous avez bien dormi&quot; into Ghomálá'</h2>
+                
+                <div class="dictionary-info">
+                    <h3>&quot;BONJOUR BONJOUR FAMILLE, VOUS AVEZ BIEN DORMI!&quot; IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ' </a> DICTIONARY</h3>
+                </div>
+                
+                <div class="no-results-box">
+                    <p>Currently we have no translations for <strong>&quot;bonjour bonjour famille, vous avez bien dormi&quot;</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.</p>
+                </div>
+                
+                <div class="add-translation-section">
+                    <button class="add-translation-btn">+ADD TRANSLATION</button>
+                </div>
+                
+                <div class="similar-phrases-section">
+                    <h3>PHRASES SIMILAR TO &quot;BONJOUR BONJOUR FAMILLE, VOUS AVEZ BIEN DORMI!&quot; WITH TRANSLATIONS INTO GHOMÁLÁ'</h3>
+                    
+                    <div class="similar-phrases-list">
+                        <div class="similar-phrase-item">
+                            <div class="original-phrase">"bonjour bonjour famille"</div>
+                            <div class="translated-phrase">Bonjour bonjour famille</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>
+              CamMT provides not only dictionary <span class="language-pair-footer">French - Ghomálá'</span>, but also
+              dictionaries for every existing pairs of languages - online and for
+              free.
+            </p>
+          </footer>
+    </div>
+    
+    <script src="script.js"></script>
+    <script src="results.js"></script>
+</body>
+</html>
