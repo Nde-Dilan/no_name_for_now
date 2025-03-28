@@ -50,8 +50,20 @@
                 
                 <div class="search-input-container">
                     <input type="text" id="search-input" placeholder="Translate from French into Ghomálá'" value="&quot;bonjour bonjour famille, vous avez bien dormi&quot;">
+                    <button class="camera-btn" title="Capture image">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <button class="upload-btn" title="Upload image">
+                        <i class="fas fa-image"></i>
+                    </button>
                     <button class="keyboard-btn"><i class="fas fa-keyboard"></i></button>
                     <button class="search-btn"><i class="fas fa-search"></i></button>
+                    
+                    <!-- Hidden file input for image upload -->
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+                    
+                    <!-- Hidden file input for camera capture -->
+                    <input type="file" id="camera-capture" accept="image/*" capture="environment" style="display: none;" />
                 </div>
                 
                 <div class="recent-searches">
@@ -105,3 +117,4 @@
     <script src="results.js"></script>
 </body>
 </html>
+

@@ -70,10 +70,22 @@
               id="translation-text"
               placeholder="Translate from French into Ghomálá'"
             />
+            <button class="camera-btn" title="Capture image">
+              <i class="fas fa-camera"></i>
+            </button>
+            <button class="upload-btn" title="Upload image">
+              <i class="fas fa-image"></i>
+            </button>
             <button class="keyboard-btn">
               <i class="fas fa-keyboard"></i>
             </button>
             <button class="search-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
+            
+            <!-- Hidden file input for image upload -->
+            <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+            
+            <!-- Hidden file input for camera capture -->
+            <input type="file" id="camera-capture" accept="image/*" capture="environment" style="display: none;" />
           </div>
         </div>
       </main>
@@ -90,3 +102,4 @@
     <script src="script.js"></script>
   </body>
 </html>
+
