@@ -79,6 +79,7 @@ class ImageHandler {
     this.uploadBtn = document.querySelector(".upload-btn")
     this.cameraBtn = document.querySelector(".camera-btn")
     this.imageUploadInput = document.getElementById("image-upload")
+    this.translationInput = document.getElementById("translation-text") || document.getElementById("search-input")
 
     // Camera modal elements
     this.modal = document.getElementById("camera-modal")
@@ -96,6 +97,9 @@ class ImageHandler {
     // Create image preview container
     this.createImagePreviewContainer()
 
+    // Initialize image recognition service
+    this.recognitionService = new ImageRecognitionService()
+
     // Initialize event listeners
     this.initEventListeners()
   }
@@ -109,6 +113,18 @@ class ImageHandler {
     this.previewImage = document.createElement("img")
     this.previewImage.className = "image-preview"
     this.previewContainer.appendChild(this.previewImage)
+
+    // Create loading indicator
+    this.loadingIndicator = document.createElement("div")
+    this.loadingIndicator.className = "loading-indicator"
+    this.loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing image...'
+    this.loadingIndicator.style.display = "none"
+    this.previewContainer.appendChild(this.loadingIndicator)
+
+    // Create recognized text element
+    this.recognizedTextElement = document.createElement("div")
+    this.recognizedTextElement.className = "recognized-text"
+    this.previewContainer.appendChild(this.recognizedTextElement)
 
     // Create remove button
     this.removeBtn = document.createElement("button")
@@ -187,7 +203,7 @@ class ImageHandler {
     })
   }
 
-  handleImageSelection(files) {
+  async handleImageSelection(files) {
     if (files && files[0]) {
       const file = files[0]
 
@@ -204,6 +220,37 @@ class ImageHandler {
       this.previewImage.src = imageUrl
       this.previewContainer.style.display = "block"
 
+      // Show loading indicator
+      this.loadingIndicator.style.display = "block"
+      this.recognizedTextElement.textContent = ""
+
+      try {
+        // Get the source language from the UI
+        const sourceLanguageElement = document.querySelector(".dropdown-btn")
+        const sourceLanguage = sourceLanguageElement
+          ? sourceLanguageElement.textContent.trim().split(" ")[0].toLowerCase()
+          : "french"
+
+        // Recognize objects in the image
+        const recognizedText = await this.recognitionService.recognizeImage(file, sourceLanguage)
+
+        // Display the recognized text
+        this.recognizedTextElement.textContent = `Recognized: ${recognizedText}`
+
+        // Set the recognized text in the translation input
+        if (this.translationInput) {
+          this.translationInput.value = recognizedText
+        }
+
+        console.log("Image analyzed:", recognizedText)
+      } catch (error) {
+        console.error("Error analyzing image:", error)
+        this.recognizedTextElement.textContent = "Error analyzing image. Please try again."
+      } finally {
+        // Hide loading indicator
+        this.loadingIndicator.style.display = "none"
+      }
+
       console.log("Image selected:", file.name)
     }
   }
@@ -212,6 +259,7 @@ class ImageHandler {
     // Clear the image preview
     this.previewImage.src = ""
     this.previewContainer.style.display = "none"
+    this.recognizedTextElement.textContent = ""
 
     // Reset file input
     this.imageUploadInput.value = ""
@@ -307,7 +355,7 @@ class ImageHandler {
     this.capturedImage = null
   }
 
-  usePhoto() {
+  async usePhoto() {
     if (this.capturedImage) {
       // Display the captured image in the preview container
       this.previewImage.src = this.capturedImage
@@ -316,8 +364,48 @@ class ImageHandler {
       // Close the modal
       this.closeCameraModal()
 
+      // Show loading indicator
+      this.loadingIndicator.style.display = "block"
+      this.recognizedTextElement.textContent = ""
+
+      try {
+        // Get the source language from the UI
+        const sourceLanguageElement = document.querySelector(".dropdown-btn")
+        const sourceLanguage = sourceLanguageElement
+          ? sourceLanguageElement.textContent.trim().split(" ")[0].toLowerCase()
+          : "french"
+
+        // Recognize objects in the image
+        const recognizedText = await this.recognitionService.recognizeImage(this.capturedImage, sourceLanguage)
+
+        // Display the recognized text
+        this.recognizedTextElement.textContent = `Recognized: ${recognizedText}`
+
+        // Set the recognized text in the translation input
+        if (this.translationInput) {
+          this.translationInput.value = recognizedText
+        }
+
+        console.log("Image analyzed:", recognizedText)
+      } catch (error) {
+        console.error("Error analyzing image:", error)
+        this.recognizedTextElement.textContent = "Error analyzing image. Please try again."
+      } finally {
+        // Hide loading indicator
+        this.loadingIndicator.style.display = "none"
+      }
+
       console.log("Photo captured and used")
     }
+  }
+}
+
+// Dummy ImageRecognitionService class (replace with actual implementation)
+class ImageRecognitionService {
+  async recognizeImage(image, language) {
+    // Simulate image recognition
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    return `Recognized text in ${language}`
   }
 }
 
