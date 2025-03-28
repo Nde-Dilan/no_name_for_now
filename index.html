@@ -70,10 +70,19 @@
               id="translation-text"
               placeholder="Translate from French into Ghomálá'"
             />
+            <button class="camera-btn" title="Capture image">
+              <i class="fas fa-camera"></i>
+            </button>
+            <button class="upload-btn" title="Upload image">
+              <i class="fas fa-image"></i>
+            </button>
             <button class="keyboard-btn">
               <i class="fas fa-keyboard"></i>
             </button>
             <button class="search-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
+            
+            <!-- Hidden file input for image upload -->
+            <input type="file" id="image-upload" accept="image/*" style="display: none;" />
           </div>
         </div>
       </main>
@@ -87,6 +96,29 @@
       </footer>
     </div>
 
+    <!-- Camera modal -->
+    <div id="camera-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Camera Access</h3>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>CamMT would like to access your camera to capture an image for translation.</p>
+          <div class="camera-container">
+            <video id="camera-preview" autoplay playsinline></video>
+            <canvas id="camera-canvas" style="display: none;"></canvas>
+          </div>
+          <div class="camera-controls">
+            <button id="capture-btn" disabled><i class="fas fa-camera"></i> Capture</button>
+            <button id="retake-btn" style="display: none;"><i class="fas fa-redo"></i> Retake</button>
+            <button id="use-photo-btn" style="display: none;"><i class="fas fa-check"></i> Use Photo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
   </body>
 </html>
+
