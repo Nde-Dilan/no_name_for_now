@@ -409,6 +409,51 @@ class ImageRecognitionService {
   }
 }
 
+const translations = {
+  "french-ghomala": {
+      "bonjour": "bongu",
+      "famille": "fami",
+      // Add more translations
+  },
+  "english-ghomala": {
+      "hello": "bongu",
+      // Add more translations
+  },
+  "french-fulfulde": {
+      "bonjour": "djamina",
+      // Add more translations
+  },
+  "english-fulfulde": {
+      "hello": "djamina",
+      // Add more translations
+  },
+};
+
+function translateText() {
+    const sourceText = document.getElementById("translation-text").value.trim();
+    const sourceLang = document.querySelector('.dropdown-btn').textContent.trim().toLowerCase();
+    const targetLang = document.querySelectorAll('.dropdown-btn')[1].textContent.trim().toLowerCase();
+
+    const translationKey = `${sourceLang}-${targetLang}`;
+    const outputField = document.getElementById("output-text"); // Ensure this ID exists in results.html
+    const noResultsBox = document.getElementById("no-results");
+
+    if (translations[translationKey] && translations[translationKey][sourceText]) {
+        const translatedText = translations[translationKey][sourceText];
+        outputField.value = translatedText; // Display the translated text
+        noResultsBox.style.display = "none"; // Hide no results box
+    } else {
+        outputField.value = ""; // Clear output
+        noResultsBox.style.display = "block"; // Show no results box
+    }
+}
+
+// Attach event listener to the translate button
+document.addEventListener("DOMContentLoaded", () => {
+    const translateBtn = document.getElementById("translate-btn");
+    translateBtn.addEventListener("click", translateText);
+});
+
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
   const langSelector = new LanguageSelector()
