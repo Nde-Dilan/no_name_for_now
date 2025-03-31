@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Forgot Password - CamMT</title>
+    <link rel="stylesheet" href="forgot.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container" id="forgot-container">
+      <header>
+        <div class="nav-left">
+          <button class="back-btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="logo-container">
+          <h1 class="app-name">CamMT</h1>
+          <p class="forgot-subtitle">Reset Your Password</p>
+        </div>
+
+        <div class="auth-form" id="forgot-form">
+          <p class="instruction-text">Enter your email address and we'll send you a password reset link.</p>
+          
+          <form id="password-reset-form">
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            
+            <div class="button-group">
+              <button type="button" class="cancel-btn" onclick="window.history.back()">Cancel</button>
+              <button type="submit" class="verify-btn" id="send-verification">Verify Email <i class="fas fa-arrow-right"></i></button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Verification sent screen (hidden initially) -->
+        <div class="auth-form verification-sent" id="verification-sent" style="display: none;">
+          <div class="verification-icon">
+            <i class="fas fa-envelope-open-text"></i>
+          </div>
+          
+          <h2 class="verification-title">Check Your Email</h2>
+          
+          <p class="verification-message">
+            We've sent a password reset link to your email address. Please check your inbox and spam folder.
+          </p>
+        </div>
+      </main>
+
+      <footer>
+        <p>
+          CamMT provides not only dictionary translations, but also
+          dictionaries for every existing pairs of languages - online and for
+          free.
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="verify.js"></script>
+  </body>
+</html>
