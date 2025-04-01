@@ -460,3 +460,105 @@ document.addEventListener("DOMContentLoaded", () => {
   const imageHandler = new ImageHandler()
 })
 
+document.addEventListener("DOMContentLoaded", function () {
+  const keyboardContainer = document.getElementById("aglc-keyboard");
+  const closeKeyboardBtn = document.querySelector(".close-keyboard");
+
+  // Close the keyboard when the button is clicked
+  closeKeyboardBtn.addEventListener("click", function () {
+    keyboardContainer.style.display = "none";
+  });
+});
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const keyboardBtn = document.querySelector(".keyboard-btn");
+  const keyboardContainer = document.getElementById("aglc-keyboard");
+  const textInput = document.getElementById("translation-text");
+  let isShiftActive = false;
+  let isCapsActive = false;
+
+  // Afficher / Cacher le clavier
+  keyboardBtn.addEventListener("click", function () {
+    keyboardContainer.style.display =
+      keyboardContainer.style.display === "none" ? "flex" : "none";
+  });
+
+  // Ajouter un caractère au champ de texte
+  document.querySelectorAll(".key").forEach((key) => {
+    key.addEventListener("click", function () {
+      let char = this.textContent;
+
+      if (this.classList.contains("backspace")) {
+        textInput.value = textInput.value.slice(0, -1);
+      } else if (this.classList.contains("space")) {
+        textInput.value += " ";
+      } else if (this.classList.contains("return")) {
+        textInput.value += "\n";
+      } else if (this.classList.contains("shift")) {
+        isShiftActive = !isShiftActive;
+      } else if (this.classList.contains("capslock")) {
+        isCapsActive = !isCapsActive;
+      } else {
+        if (isShiftActive || isCapsActive) {
+          char = char.toUpperCase();
+        } else {
+          char = char.toLowerCase();
+        }
+        textInput.value += char;
+      }
+    });
+  });
+});
+
+
+document.addEventListener("click", (event) => {
+  const keyboardContainer = document.getElementById("aglc-keyboard");
+  if (!event.target.closest("#aglc-keyboard") && !event.target.closest(".keyboard-btn")) {
+    keyboardContainer.style.display = "none";
+  }
+});
+
+const keyboardContainer = document.getElementById("aglc-keyboard");
+let isDragging = false;
+let offset = { x: 0, y: 0 };
+
+keyboardContainer.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  offset.x = e.clientX - keyboardContainer.getBoundingClientRect().left;
+  offset.y = e.clientY - keyboardContainer.getBoundingClientRect().top;
+});
+
+document.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    keyboardContainer.style.position = 'absolute';
+    keyboardContainer.style.left = `${e.clientX - offset.x}px`;
+    keyboardContainer.style.top = `${e.clientY - offset.y}px`;
+  }
+});
+
+document.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const keyboardContainer = document.getElementById("aglc-keyboard");
+  const textInput = document.getElementById("search-input"); // Utilisez le champ correspondant
+
+  const keyboardBtn = document.querySelector(".keyboard-btn");
+  keyboardBtn.addEventListener("click", function () {
+    keyboardContainer.style.display =
+      keyboardContainer.style.display === "none" ? "flex" : "none";
+  });
+
+  // Ajouter le caractère au champ de texte
+  document.querySelectorAll(".key").forEach((key) => {
+    key.addEventListener("click", function () {
+      let char = this.getAttribute("data-char");
+      textInput.value += char; // Ajouter le caractère au champ de texte
+    });
+  });
+});
