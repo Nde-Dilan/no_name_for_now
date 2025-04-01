@@ -49,7 +49,7 @@
                 </div>
                 
                 <div class="search-input-container">
-                    <input type="text" id="search-input" placeholder="Translate from French into Ghomálá'" value="&quot;bonjour bonjour famille, vous avez bien dormi&quot;">
+                    <input type="text" id="search-input" placeholder="Translate from French into Ghomálá" value="x" />
                     <button class="keyboard-btn"><i class="fas fa-keyboard"></i></button>
                     <button class="search-btn"><i class="fas fa-search"></i></button>
                 </div>
@@ -65,27 +65,37 @@
             </div>
             
             <div class="results-container">
-                <h2 class="search-query">Translation of &quot;bonjour bonjour famille, vous avez bien dormi&quot; into Ghomálá'</h2>
-                
-                <div class="dictionary-info">
-                    <h3>&quot;BONJOUR BONJOUR FAMILLE, VOUS AVEZ BIEN DORMI!&quot; IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ' </a> DICTIONARY</h3>
-                </div>
-                
-                <div class="no-results-box">
-                    <p>Currently we have no translations for <strong>&quot;bonjour bonjour famille, vous avez bien dormi&quot;</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.</p>
-                </div>
-                
-                <div class="add-translation-section">
-                    <button class="add-translation-btn">+ADD TRANSLATION</button>
-                </div>
-                
-                <div class="similar-phrases-section">
-                    <h3>PHRASES SIMILAR TO &quot;BONJOUR BONJOUR FAMILLE, VOUS AVEZ BIEN DORMI!&quot; WITH TRANSLATIONS INTO GHOMÁLÁ'</h3>
-                    
-                    <div class="similar-phrases-list">
-                        <div class="similar-phrase-item">
-                            <div class="original-phrase">"bonjour bonjour famille"</div>
-                            <div class="translated-phrase">Bonjour bonjour famille</div>
+                    <h2 class="search-query">Translation of <span id="search-text-placeholder">${searchText}</span> into Ghomálá'</h2>
+                    <div class="dictionary-info">
+                        <h3>"<span id="search-text-placeholder-dictionary">${searchText.toUpperCase()}</span>" IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ'</a> DICTIONARY</h3>
+                    </div>
+                    <div id="results-section" style="display: none;">
+                        <h2 class="search-query">Translation of <span id="search-text-placeholder">${searchText}</span> into Ghomálá'</h2>
+                        <div class="dictionary-info">
+                            <h3>"<span id="search-text-placeholder-dictionary">${searchText.toUpperCase()}</span>" IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ'</a> DICTIONARY</h3>
+                        </div>
+                        <p id="translation-result"></p> <!-- Placeholder for translation results -->
+                        <div class="similar-phrases-section">
+                            <h3>PHRASES SIMILAR TO "<span id="search-text-placeholder-similar">${searchText.toUpperCase()}</span>" WITH TRANSLATIONS INTO GHOMÁLÁ'</h3>  
+                            <div class="similar-phrases-list">
+                                <div class="similar-phrase-item">
+                                    <div class="original-phrase">"bonjour bonjour famille"</div>
+                                    <div class="translated-phrase">Bonjour bonjour famille</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <div id="no-results-section" style="display: none;">
+                    <div class="no-results-box">
+                        <p>Currently we have no translations for <strong>"<span id="search-text-placeholder-no-results">${searchText}</span>"</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.</p>
+                    </div>
+                    <div class="similar-phrases-section">
+                        <h3>PHRASES SIMILAR TO "<span id="search-text-placeholder-similar">${searchText.toUpperCase()}</span>" WITH TRANSLATIONS INTO GHOMÁLÁ'</h3>  
+                        <div class="similar-phrases-list">
+                            <div class="similar-phrase-item">
+                                <div class="original-phrase">"bonjour bonjour famille"</div>
+                                <div class="translated-phrase">Bonjour bonjour famille</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -100,8 +110,6 @@
             </p>
           </footer>
     </div>
-    
-    <script src="script.js"></script>
     <script src="results.js"></script>
 </body>
 </html>

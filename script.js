@@ -76,3 +76,8 @@ class LanguageSelector {
 document.addEventListener('DOMContentLoaded', () => {
     const langSelector = new LanguageSelector();
 });
+function redirectToResults() {
+    const translationText = document.getElementById('translation-text').value;
+    const encodedText = encodeURIComponent(translationText);
+    window.location.href = `results.html?query=${encodedText}`;
+}
