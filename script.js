@@ -562,3 +562,54 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+// IDentification Of Object In an Image and Returning it Name Only in French Or English
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI("AIzaSyDGOBMEJXEjjjLqNC6a3WhKgNK_ToDzdzY");
+const model = genAI.getGenerativeModel({ model: "gemini-pro-vision" });
+
+// DOM Elements
+const imageUpload = document.getElementById("imageUpload");
+const resultDiv = document.getElementById("result");
+const previewImg = document.getElementById("preview");
+const languageSelect = document.getElementById("language");
+
+// Analyze Image
+async function analyzeImage() {
+  const file = imageUpload.files[0];
+  if (!file) {
+    resultDiv.textContent = "Please upload an image first!";
+    return;
+  }
+
+  // Preview image
+  previewImg.src = URL.createObjectURL(file);
+  previewImg.style.display = "block";
+  resultDiv.textContent = "Analyzing...";
+
+  // Read image as base64
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const imageData = e.target.result.split(",")[1];
+
+    // Call Gemini
+    try {
+      const lang = languageSelect.value;
+      const prompt = lang === "french" 
+        ? "Identify the main object in this image. Return ONLY its name in French." 
+        : "Identify the main object in this image. Return ONLY its name in English.";
+
+      const result = await model.generateContent([
+        prompt,
+        { inlineData: { data: imageData, mimeType: file.type } }
+      ]);
+
+      const response = await result.response;
+      const text = response.text();
+      resultDiv.innerHTML = `<strong>Detected Object:</strong> ${text}`;
+    } catch (error) {
+      resultDiv.textContent = `Error: ${error.message}`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
