@@ -405,8 +405,8 @@ class ImageRecognitionService {
   // --- Configuration ---
   // IMPORTANT: Replace with your actual Gemini API key from Google AI Studio.
   // !! DO NOT hardcode this in production client-side code !!
-  #apiKey = 'YOUR_GEMINI_API_KEY'; // Use a private field for encapsulation
-  #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${this.#apiKey}`;
+  #apiKey = ''; // CHANGE THIS TO YOUR API KEY
+  #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.#apiKey}`;
 
   /**
    * Converts an image File object to a Base64 encoded string.
@@ -507,7 +507,7 @@ class ImageRecognitionService {
    * @param {string} [language='English'] - The desired language for the result.
    * @returns {Promise<string|null>} A promise resolving with the identified name, a block reason, or null on error.
    */
-  async processImageFile(imageFile, language = 'English') {
+  async recognizeImage(imageFile, language = 'English') {
       try {
           // 1. Validate and Convert image to Base64
           const imageDataBase64 = await this.convertImageToBase64(imageFile);
