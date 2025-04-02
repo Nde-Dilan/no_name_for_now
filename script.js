@@ -405,7 +405,7 @@ class ImageRecognitionService {
   // --- Configuration ---
   // IMPORTANT: Replace with your actual Gemini API key from Google AI Studio.
   // !! DO NOT hardcode this in production client-side code !!
-  #apiKey = ''; // CHANGE THIS TO YOUR API KEY
+  #apiKey = process.env.GEMINI_API_KEY; // CHANGE THIS TO YOUR API KEY
   #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.#apiKey}`;
 
   /**
