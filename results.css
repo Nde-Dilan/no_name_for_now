@@ -170,7 +170,7 @@ main {
     background-color: #e6f7e9;
 }
 
-.similar-phrases-section {
+.similar-phrases-section1, .similar-phrases-section2 {
     margin-top: 30px;
     border-top: 1px solid #e5e7eb;
     padding-top: 20px;

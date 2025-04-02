@@ -1,5 +1,7 @@
 // results.js
 
+let searchText; // Declare searchText in the correct scope
+
 document.addEventListener('DOMContentLoaded', () => {
     setSearchInputFromQuery();
     
@@ -63,12 +65,12 @@ function myFunc(sourceLang, targetLang, data) {
     // Simulate an API call and return dummy data
     const translations = {
         "french": {
-            "bonjour": "Bonjour",
-            "comment ça va": "Ghomálá' translation for 'how are you'",
+            "bonjour": "werio",
+            "comment ca va": "xoxio",
         },
         "english": {
-            "hello": "Ghomálá' translation for 'hello'",
-            "how are you": "Ghomálá' translation for 'how are you'",
+            "hello": "werio",
+            "how are you": "xoxio",
         }
     };
 
@@ -77,45 +79,53 @@ function myFunc(sourceLang, targetLang, data) {
 }
 
 function getSimilarPhrases(searchText) {
-    // Simulate a function that returns similar phrases based on the search text
+    // Function that returns similar phrases based on the search text
     const similarPhrases = {
         "bonjour": ["salut", "coucou", "bienvenue"],
-        "comment ça va": ["ça va bien", "tout va bien"],
+        "comment ca va": ["ça va bien", "tout va bien"],
+        "je mange": ["je suis en train de manger", "je prends un repas"],
+        "fille": ["fille", "jeune fille", "filleule"],
         // Add more phrases as needed
     };
 
-    return similarPhrases[searchText.toLowerCase()] || [];
+    const trimmedSearchText = searchText.trim().toLowerCase(); // Trim whitespace and convert to lowercase
+    console.log("Searching for similar phrases for:", trimmedSearchText); // Log the input for debugging
+    const phrases = similarPhrases[trimmedSearchText] || [];
+    return phrases.length > 0 ? phrases : ["No similar phrases found."];
 }
 // Example usage within the existing logic
 function updateDisplayedText() {
-      // Update all relevant sections with the translation result
-      const searchQuery = document.querySelector('.search-query');
-      searchQuery.textContent = `Translation of "${searchText}" into Ghomálá'`;
-  
-      const dictionaryInfo = document.querySelector('.dictionary-info h3');
-      dictionaryInfo.innerHTML = `"${searchText.toUpperCase()}" IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ'</a> DICTIONARY`;
-  
-      const noResultsBox = document.querySelector('.no-results-box p');
-      noResultsBox.innerHTML = `Currently we have no translations for <strong>"${searchText}"</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.`;
-  
-      const similarPhrases = getSimilarPhrases(searchText);
-        const similarPhrasesSection = document.querySelector('.similar-phrases-section');
-        similarPhrasesSection.innerHTML = `PHRASES SIMILAR TO "${searchText.toUpperCase()}" WITH TRANSLATIONS INTO GHOMÁLÁ': ${similarPhrases.join(', ')}`;
-      
-      const sourceLang = "french"; // This should be dynamically set based on user input
-      const targetLang = "ghomala"; // This should be dynamically set based on user input
-      const translationResult = myFunc(sourceLang, targetLang, searchText);
-  
-      // Check if there are results based on the translation
-      const hasResults = translationResult !== "Translation not found";
-  
-      if (hasResults) {
-          document.getElementById('results-section').style.display = 'block';
-          document.getElementById('no-results-section').style.display = 'none';
-  
-          document.getElementById('translation-result').textContent = translationResult;
-      } else {
-          document.getElementById('results-section').style.display = 'none';
-          document.getElementById('no-results-section').style.display = 'block';
-      }
-  }
+    // Update all relevant sections with the translation result
+    const searchQuery = document.querySelector('.search-query');
+    searchQuery.textContent = `Translation of "${searchText}" into Ghomálá'`;
+
+    const dictionaryInfo = document.querySelector('.dictionary-info h3');
+    dictionaryInfo.innerHTML = `"${searchText.toUpperCase()}" IN <a href="#" class="language-link">FRENCH</a> - <a href="#" class="language-link">GHOMÁLÁ'</a> DICTIONARY`;
+
+    const noResultsBox = document.querySelector('.no-results-box p');
+    noResultsBox.innerHTML = `Currently we have no translations for <strong>"${searchText}"</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.`;
+
+    const similarPhrases = getSimilarPhrases(searchText);
+    const similarPhrasesSection1 = document.querySelector('.similar-phrases-section1');
+    similarPhrasesSection1.innerHTML = `PHRASES SIMILAR TO "${searchText.toUpperCase()}" WITH TRANSLATIONS INTO GHOMÁLÁ': ${similarPhrases.join(', ')}`;
+
+    const similarPhrasesSection2 = document.querySelector('.similar-phrases-section2');
+    similarPhrasesSection2.innerHTML = `PHRASES SIMILAR TO "${searchText.toUpperCase()}" WITH TRANSLATIONS INTO GHOMÁLÁ': ${similarPhrases.join(', ')}`;
+
+    const sourceLang = "french"; // This should be dynamically set based on user input
+    const targetLang = "ghomala"; // This should be dynamically set based on user input
+    const translationResult = myFunc(sourceLang, targetLang, searchText);
+
+    // Check if there are results based on the translation
+    const hasResults = translationResult !== "Translation not found";
+
+    if (hasResults) {
+        document.getElementById('results-section').style.display = 'block';
+        document.getElementById('no-results-section').style.display = 'none';
+
+        document.getElementById('translation-result').textContent = translationResult;
+    } else {
+        document.getElementById('results-section').style.display = 'none';
+        document.getElementById('no-results-section').style.display = 'block';
+    }
+}
