@@ -32,6 +32,70 @@ body {
     align-items: center;
  
 }
+/* User profile dropdown styling */
+.user-profile {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 200px;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-header {
+  padding: 12px 15px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #555;
+  background-color: #f8f8f8;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 0;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 10px 15px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-item i {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+  color: #666;
+}
+
+.auth-container {
+  display: flex;
+  align-items: center;
+}
 
 .container {
   max-width: 1200px;

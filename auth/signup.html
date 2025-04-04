@@ -32,40 +32,46 @@
               <label for="username">Username</label>
               <input type="text" id="username" name="username" required />
             </div>
-            
+
             <div class="form-group">
               <label for="email">Email</label>
               <input type="email" id="email" name="email" required />
             </div>
-            
+
             <div class="form-group">
               <label for="password">Password (min. 6 characters)</label>
-              <input type="password" id="password" name="password" minlength="6" required />
+              <input
+                type="password"
+                id="password"
+                name="password"
+                minlength="6"
+                required
+              />
             </div>
-            
+
             <div class="form-group">
-              <button type="submit" class="btn">
-                Signup
-              </button>
+              <button type="submit" class="btn">Signup</button>
             </div>
           </form>
-          
+
           <div class="auth-footer">
-            <p>Already have an account? <a href="login.html" class="login-link">Log in</a></p>
+            <p>
+              Already have an account?
+              <a href="login.html" class="login-link">Log in</a>
+            </p>
           </div>
         </div>
       </main>
 
       <footer>
         <p>
-          CamMT provides not only dictionary translations, but also
-          dictionaries for every existing pairs of languages - online and for
-          free.
+          CamMT provides not only full translation experience intranslations,
+          but also dictionaries for every existing pairs of languages - online
+          and for free.
         </p>
       </footer>
     </div>
 
     <script type="module" src="auth.js"></script>
-
   </body>
 </html>

@@ -47,7 +47,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 showMessage(messageContainer, "Signup successful! Redirecting...", true);
                 setTimeout(() => window.location.href = "login.html", 1500);
             } catch (error) {
-                showMessage(messageContainer, error.message, false);
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage(messageContainer, "This email is already registered. Please use login instead.", false);
+                    // Clear the email field to prevent it from showing up in the login form
+                    document.getElementById("email").value = '';
+                    
+                    // Redirect to login page after a delay
+                    setTimeout(() => window.location.href = "login.html", 3000);
+                } else {
+                    showMessage(messageContainer, error.message, false);
+                }
             }
             
             signupBtn.innerHTML = 'Signup';
@@ -72,9 +81,20 @@ document.addEventListener("DOMContentLoaded", () => {
             loginBtn.disabled = true;
             
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Store authentication state in localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                // Store user information
+                localStorage.setItem('userEmail', user.email);
+                // If you have a display name or photo URL from Firebase
+                if (user.displayName) localStorage.setItem('userName', user.displayName);
+                if (user.photoURL) localStorage.setItem('userAvatar', user.photoURL);
+                
                 showMessage(loginMessageContainer, "Login successful! Redirecting...", true);
                 setTimeout(() => window.location.href = "../index.html", 1500);
+            
             } catch (error) {
                 showMessage(loginMessageContainer, error.message, false);
             }

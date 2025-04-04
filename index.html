@@ -21,17 +21,50 @@
           <button class="history-btn"><i class="fas fa-history"></i></button>
           <!-- <button class="favorites-btn"><i class="fas fa-heart"></i></button> -->
           <button class="settings-btn"><i class="fas fa-cog"></i></button>
-          <a href="auth/login.html">
-            <button class="login-btn">Log in</button>
-        </a>
+          <!-- Auth container to toggle between login button and user profile -->
+          <div class="auth-container">
+            <!-- Login button (shown when logged out) -->
+            <a href="auth/login.html" id="login-link">
+              <button class="login-btn">Log in</button>
+            </a>
+
+           <!-- User profile (hidden by default, shown when logged in) -->
+<div class="user-profile" id="user-profile" style="display: none">
+  <img
+    src="img/default-user.png"
+    alt="User Profile"
+    class="user-avatar"
+  />
+  
+  <!-- User dropdown menu -->
+  <div class="user-dropdown" id="user-dropdown">
+    <div class="dropdown-header">
+      <span id="user-email">user@example.com</span>
+    </div>
+    <div class="dropdown-divider"></div>
+    <a href="#" class="dropdown-item" id="profile-link">
+      <i class="fas fa-user"></i> Profile
+    </a>
+    <a href="#" class="dropdown-item" id="settings-link">
+      <i class="fas fa-cog"></i> Settings
+    </a>
+    <div class="dropdown-divider"></div>
+    <a href="#" class="dropdown-item" id="logout-link">
+      <i class="fas fa-sign-out-alt"></i> Logout
+    </a>
+  </div>
+</div>
+          </div>
         </div>
       </header>
 
       <main class="main">
         <div class="logo-container">
-         
           <h1 class="app-name">CamMT</h1>
-          <h2 class="language-pair">Dictionary French - Ghomálá'</h2>
+          <h2 class="language-pair">
+            <i class="fas fa-language"></i> Experience seamless translation: <span class="highlight">French ⟷ Ghomálá'</span>
+            </h2>
+         
         </div>
 
         <div class="translator">
@@ -54,8 +87,8 @@
 
             <div class="dropdown">
               <button class="dropdown-btn">
-                Ghomálá' 
-              <i class="fas fa-chevron-down"></i>
+                Ghomálá'
+                <i class="fas fa-chevron-down"></i>
               </button>
               <div class="dropdown-content" id="target-languages">
                 <a href="#" data-lang="ghomala">Ghomálá'</a>
@@ -77,23 +110,29 @@
             </button>
             <button class="upload-btn" title="Upload image">
               <i class="fas fa-image"></i>
-
-              
             </button>
             <button class="keyboard-btn">
               <i class="fas fa-keyboard"></i>
             </button>
-            <button class="search-btn" id="translate-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
-            
+            <button class="search-btn" id="translate-btn">
+              <a href="./results.html"><i class="fas fa-search"></i></a>
+            </button>
+
             <!-- Hidden file input for image upload -->
-            <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+            <input
+              type="file"
+              id="image-upload"
+              accept="image/*"
+              style="display: none"
+            />
           </div>
         </div>
       </main>
 
       <footer>
         <p>
-          CamMT provides not only dictionary <span class="language-pair-footer">French - Ghomálá'</span>, but also
+          CamMT provides not only full translation experience
+          <span class="language-pair-footer">French - Ghomálá'</span>, but also
           dictionaries for every existing pairs of languages - online and for
           free.
         </p>
@@ -108,15 +147,24 @@
           <span class="close-modal">&times;</span>
         </div>
         <div class="modal-body">
-          <p>CamMT would like to access your camera to capture an image for translation.</p>
+          <p>
+            CamMT would like to access your camera to capture an image for
+            translation.
+          </p>
           <div class="camera-container">
             <video id="camera-preview" autoplay playsinline></video>
-            <canvas id="camera-canvas" style="display: none;"></canvas>
+            <canvas id="camera-canvas" style="display: none"></canvas>
           </div>
           <div class="camera-controls">
-            <button id="capture-btn" disabled><i class="fas fa-camera"></i> Capture</button>
-            <button id="retake-btn" style="display: none;"><i class="fas fa-redo"></i> Retake</button>
-            <button id="use-photo-btn" style="display: none;"><i class="fas fa-check"></i> Use Photo</button>
+            <button id="capture-btn" disabled>
+              <i class="fas fa-camera"></i> Capture
+            </button>
+            <button id="retake-btn" style="display: none">
+              <i class="fas fa-redo"></i> Retake
+            </button>
+            <button id="use-photo-btn" style="display: none">
+              <i class="fas fa-check"></i> Use Photo
+            </button>
           </div>
         </div>
       </div>
@@ -124,11 +172,11 @@
 
     <script src="script.js"></script>
     <!-- Clavier Virtuel AGLC -->
-    <div id="aglc-keyboard" class="keyboard-container" style="display: none;">
+    <div id="aglc-keyboard" class="keyboard-container" style="display: none">
       <div class="keyboard-header">
         <button class="close-keyboard">X</button>
       </div>
-    
+
       <div class="keyboard-row">
         <button class="key" data-char="p">p</button>
         <button class="key" data-char="t">t</button>
@@ -148,7 +196,7 @@
         <button class="key" data-char="kf">kf</button>
         <button class="key" data-char="bv">bv</button>
       </div>
-    
+
       <div class="keyboard-row">
         <button class="key" data-char="dv">dv</button>
         <button class="key" data-char="dz">dz</button>
@@ -166,7 +214,7 @@
         <button class="key" data-char="gh">gh</button>
         <button class="key" data-char="hv">hv</button>
       </div>
-    
+
       <div class="keyboard-row">
         <button class="key" data-char="m">m</button>
         <button class="key" data-char="n">n</button>
@@ -183,7 +231,7 @@
         <button class="key" data-char="y">y</button>
         <button class="key" data-char="w">w</button>
       </div>
-    
+
       <div class="keyboard-row">
         <button class="key" data-char="i">i</button>
         <button class="key" data-char="ɨ">ɨ</button>
@@ -202,12 +250,10 @@
         <button class="key" data-char="ɑ">ɑ</button>
         <button class="key" data-char="α">α</button>
       </div>
-    
+
       <div class="keyboard-row">
         <button class="key space">␣</button>
       </div>
     </div>
-
   </body>
 </html>
-
