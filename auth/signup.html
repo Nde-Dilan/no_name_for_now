@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up - CamMT</title>
+    <link rel="stylesheet" href="auth.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div class="nav-left">
+          <button class="back-btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+        </div>
+      </header>
+
+      <main class="main">
+        <div class="logo-container">
+          <h1 class="app-name">CamMT</h1>
+          <p class="login-subtitle">Create an account</p>
+        </div>
+
+        <div class="auth-form">
+          <form>
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Password (min. 6 characters)</label>
+              <input type="password" id="password" name="password" minlength="6" required />
+            </div>
+            
+            <div class="form-group">
+              <button type="submit" class="btn">
+                Signup
+              </button>
+            </div>
+          </form>
+          
+          <div class="auth-footer">
+            <p>Already have an account? <a href="login.html" class="login-link">Log in</a></p>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <p>
+          CamMT provides not only dictionary translations, but also
+          dictionaries for every existing pairs of languages - online and for
+          free.
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="auth.js"></script>
+
+  </body>
+</html>
