@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Results - Translation System</title>
+    <link rel="stylesheet" href="results.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="form.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h2 class="search-query">Add New Translation</h2>
+            <div class="nav-right">
+                <span class="close">&times;</span>
+            </div>
+        </header>
+
+        <main class="results-page">
+            <div class="results-container">
+
+                <div class="language-selector compact">
+                    <div class="dropdown">
+                        <button class="dropdown-btn">French
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-content" id="source-languages">
+                            <a href="#" data-lang="french">French</a>
+                            <a href="#" data-lang="english">English</a>
+                            <a href="#" data-lang="duala">Duala</a>
+                            <a href="#" data-lang="basaa">Basaa</a>
+                        </div>
+                    </div>
+
+                    <button class="swap-btn"><i class="fas fa-exchange-alt"></i></button>
+
+                    <div class="dropdown">
+                        <button class="dropdown-btn">Ghomálá' <i class="fas fa-chevron-down"></i></button>
+                        <div class="dropdown-content" id="target-languages">
+                            <a href="#" data-lang="ghomala">Ghomálá'</a>
+                            <a href="#" data-lang="bulu">Bulu</a>
+                            <a href="#" data-lang="ewondo">Ewondo</a>
+                            <a href="#" data-lang="fulfulde">Fulfulde</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- translate to other language selected e.g : French -->
+                <form id="translationForm">
+                    <div class="form-container">
+                        <label for="sourceText">
+                            <h2 class="search-query">Source language Text:</h2>
+                        </label>
+                        <input type="text" id="sourceText" name="sourceText" required>
+                        <div class="form-option-section">
+                            <div class="form-phrases-lists">
+                                <div class="form-phrase-items">
+                                    <div class="form-phrases">0/5000</div>
+
+                                    <div class="translated-phrases">
+                                        <button class="speak-btn" title="Speak"><i
+                                                class="fas fa-volume-up"></i></button>
+                                        <button class="microphone-btn" title="microphone"><i
+                                                class="fa-solid fa-microphone"></i></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+
+                <!-- translate to other language selected e.g : Ghomálá-->
+
+                <form id="translationForm">
+                    <div class="form-container">
+                        <label for="sourceText">
+                            <h2 class="search-query">Target language Text:</h2>
+                        </label>
+                        <input type="text" id="sourceText" name="sourceText" required>
+                        <div class="form-option-section">
+                            <div class="form-phrases-lists">
+                                <div class="form-phrase-items">
+                                    <div class="form-phrases">0/5000</div>
+
+                                    <div class="translated-phrases">
+                                        <button class="speak-btn" title="Speak"><i
+                                                class="fas fa-volume-up"></i></button>
+                                        <button class="copy-btn" title="Copy to clipboard"><i
+                                                class="fas fa-copy"></i></button>
+                                        <button class="microphone-btn" title="microphone"><i
+                                                class="fa-solid fa-microphone"></i></i></button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <!-- translate to other language selected e.g : french-->
+                <form id="translationForm">
+                    <div class="form-container">
+                        <label for="sourceText">
+                            <h2 class="search-query">Example Sentence(Source)</h2>
+                        </label>
+                        <input type="text" id="sourceText" name="sourceText" required>
+                        <div class="form-option-section">
+                            <div class="form-phrases-lists">
+                                <div class="form-phrase-items">
+                                    <div class="form-phrases">0/5000</div>
+
+                                    <div class="translated-phrases">
+                                        <button class="speak-btn" title="Speak"><i
+                                                class="fas fa-volume-up"></i></button>
+                                        <button class="microphone-btn" title="microphone"><i
+                                                class="fa-solid fa-microphone"></i></i></button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+
+                <form id="translationForm">
+                    <div class="form-container">
+                        <label for="sourceText">
+                            <h2 class="search-query">Example Sentence(Translated)</h2>
+                        </label>
+                        <input type="text" id="sourceText" name="sourceText" required>
+                        <div class="form-option-section">
+                            <div class="form-phrases-lists">
+                                <div class="form-phrase-items">
+                                    <div class="form-phrases">0/5000</div>
+
+                                    <div class="translated-phrases">
+                                        <button class="speak-btn" title="Speak"><i
+                                                class="fas fa-volume-up"></i></button>
+                                        <button class="copy-btn" title="Copy to clipboard"><i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+
+                <button type="button" class="add-translation-btns" onclick="addTranslation()">Add Translation</button>
+
+        </main>
+
+        <footer>
+            <p>
+                CamMT provides not only dictionary <span class="language-pair-footer">French - Ghomálá'</span>, but also
+                dictionaries for every existing pairs of languages - online and for
+                free.
+            </p>
+        </footer>
+    </div>
+
+
+
+    <script src="script.js"></script>
+    <script src="results.js"></script>
+    <script src="form.js"></script>
+</body>
+
+</html>

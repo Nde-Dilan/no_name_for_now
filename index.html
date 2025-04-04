@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Translation System for Cameroonian Languages</title>
     <link rel="stylesheet" href="style.css" />
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -53,7 +54,8 @@
 
             <div class="dropdown">
               <button class="dropdown-btn">
-                Ghomálá' <i class="fas fa-chevron-down"></i>
+                Ghomálá' 
+              <i class="fas fa-chevron-down"></i>
               </button>
               <div class="dropdown-content" id="target-languages">
                 <a href="#" data-lang="ghomala">Ghomálá'</a>
@@ -70,10 +72,21 @@
               id="translation-text"
               placeholder="Translate from French into Ghomálá'"
             />
+            <button class="camera-btn" title="Capture image">
+              <i class="fas fa-camera"></i>
+            </button>
+            <button class="upload-btn" title="Upload image">
+              <i class="fas fa-image"></i>
+
+              
+            </button>
             <button class="keyboard-btn">
               <i class="fas fa-keyboard"></i>
             </button>
-            <button class="search-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
+            <button class="search-btn" id="translate-btn"><a href="./results.html"><i class="fas fa-search"></i></a></button>
+            
+            <!-- Hidden file input for image upload -->
+            <input type="file" id="image-upload" accept="image/*" style="display: none;" />
           </div>
         </div>
       </main>
@@ -87,6 +100,114 @@
       </footer>
     </div>
 
+    <!-- Camera modal -->
+    <div id="camera-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Camera Access</h3>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>CamMT would like to access your camera to capture an image for translation.</p>
+          <div class="camera-container">
+            <video id="camera-preview" autoplay playsinline></video>
+            <canvas id="camera-canvas" style="display: none;"></canvas>
+          </div>
+          <div class="camera-controls">
+            <button id="capture-btn" disabled><i class="fas fa-camera"></i> Capture</button>
+            <button id="retake-btn" style="display: none;"><i class="fas fa-redo"></i> Retake</button>
+            <button id="use-photo-btn" style="display: none;"><i class="fas fa-check"></i> Use Photo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
+    <!-- Clavier Virtuel AGLC -->
+    <div id="aglc-keyboard" class="keyboard-container" style="display: none;">
+      <div class="keyboard-header">
+        <button class="close-keyboard">X</button>
+      </div>
+    
+      <div class="keyboard-row">
+        <button class="key" data-char="p">p</button>
+        <button class="key" data-char="t">t</button>
+        <button class="key" data-char="k">k</button>
+        <button class="key" data-char="kp">kp</button>
+        <button class="key" data-char="b">b</button>
+        <button class="key" data-char="d">d</button>
+        <button class="key" data-char="g">g</button>
+        <button class="key" data-char="gb">gb</button>
+        <button class="key" data-char="ɓ">ɓ</button>
+        <button class="key" data-char="ɗ">ɗ</button>
+        <button class="key" data-char="ƴ">ƴ</button>
+        <button class="key" data-char="pf">pf</button>
+        <button class="key" data-char="tf">tf</button>
+        <button class="key" data-char="ts">ts</button>
+        <button class="key" data-char="c">c</button>
+        <button class="key" data-char="kf">kf</button>
+        <button class="key" data-char="bv">bv</button>
+      </div>
+    
+      <div class="keyboard-row">
+        <button class="key" data-char="dv">dv</button>
+        <button class="key" data-char="dz">dz</button>
+        <button class="key" data-char="j">j</button>
+        <button class="key" data-char="gv">gv</button>
+        <button class="key" data-char="f">f</button>
+        <button class="key" data-char="s">s</button>
+        <button class="key" data-char="sh">sh</button>
+        <button class="key" data-char="x">x</button>
+        <button class="key" data-char="xf">xf</button>
+        <button class="key" data-char="h">h</button>
+        <button class="key" data-char="v">v</button>
+        <button class="key" data-char="z">z</button>
+        <button class="key" data-char="zh">zh</button>
+        <button class="key" data-char="gh">gh</button>
+        <button class="key" data-char="hv">hv</button>
+      </div>
+    
+      <div class="keyboard-row">
+        <button class="key" data-char="m">m</button>
+        <button class="key" data-char="n">n</button>
+        <button class="key" data-char="ny">ny</button>
+        <button class="key" data-char="ŋ">ŋ</button>
+        <button class="key" data-char="ŋm">ŋm</button>
+        <button class="key" data-char="l">l</button>
+        <button class="key" data-char="sl">sl</button>
+        <button class="key" data-char="zl">zl</button>
+        <button class="key" data-char="ʙ">ʙ</button>
+        <button class="key" data-char="vb">vb</button>
+        <button class="key" data-char="r">r</button>
+        <button class="key" data-char="ẅ">ẅ</button>
+        <button class="key" data-char="y">y</button>
+        <button class="key" data-char="w">w</button>
+      </div>
+    
+      <div class="keyboard-row">
+        <button class="key" data-char="i">i</button>
+        <button class="key" data-char="ɨ">ɨ</button>
+        <button class="key" data-char="ʉ">ʉ</button>
+        <button class="key" data-char="u">u</button>
+        <button class="key" data-char="e">e</button>
+        <button class="key" data-char="ø">ø</button>
+        <button class="key" data-char="ɤ">ɤ</button>
+        <button class="key" data-char="o">o</button>
+        <button class="key" data-char="ɛ">ɛ</button>
+        <button class="key" data-char="œ">œ</button>
+        <button class="key" data-char="ə">ə</button>
+        <button class="key" data-char="ɔ">ɔ</button>
+        <button class="key" data-char="æ">æ</button>
+        <button class="key" data-char="a">a</button>
+        <button class="key" data-char="ɑ">ɑ</button>
+        <button class="key" data-char="α">α</button>
+      </div>
+    
+      <div class="keyboard-row">
+        <button class="key space">␣</button>
+      </div>
+    </div>
+
   </body>
 </html>
+
