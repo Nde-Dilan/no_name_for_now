@@ -514,12 +514,132 @@ class ImageHandler {
   }
 }
 
-// Dummy ImageRecognitionService class (replace with actual implementation)
+// Image Recognition Service uses Gemini Pro Vision API
 class ImageRecognitionService {
-  async recognizeImage(image, language) {
-    // Simulate image recognition
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return `Recognized text in ${language}`;
+  // --- Configuration ---
+  // IMPORTANT: Replace with your actual Gemini API key from Google AI Studio.
+  // !! DO NOT hardcode this in production client-side code !!
+  #apiKey = process.env.GEMINI_API_KEY; // CHANGE THIS TO YOUR API KEY
+  #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.#apiKey}`;
+
+  /**
+   * Converts an image File object to a Base64 encoded string.
+   * @param {File} file - The image file object.
+   * @returns {Promise<string>} A promise that resolves with the Base64 string (without prefix).
+   */
+  convertImageToBase64(file) {
+      return new Promise((resolve, reject) => {
+          if (!file || !file.type.startsWith('image/')) {
+              return reject(new Error("Invalid file type. Please provide an image."));
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+              // result is "data:image/jpeg;base64,..." - we only want the part after the comma
+              const base64String = reader.result.split(",")[1];
+              resolve(base64String);
+          };
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(file); // Reads the file as a data URL (includes base64)
+      });
+  }
+
+  /**
+   * Calls the Gemini Pro Vision API to identify the main object in an image.
+   * @param {string} imageDataBase64 - The Base64 encoded image data.
+   * @param {string} imageMimeType - The MIME type of the image (e.g., "image/jpeg").
+   * @param {string} [language='English'] - The desired language for the object name (e.g., 'English', 'French').
+   * @returns {Promise<string|null>} A promise that resolves with the identified object name/description in the specified language, or null on error/block.
+   */
+  async identifyObjectWithGemini(imageBase64, imageMimeType, language = 'English') {
+      // Construct the prompt for Gemini
+      const prompt = `Identify the main object or scene in this image. Return only the most specific and common name for it in ${language}. If unsure, provide the most likely category. Do not add any explanation or preamble.`;
+
+      const requestBody = {
+          contents: [{
+              parts: [
+                  { text: prompt },
+                  {
+                      inline_data: {
+                          mime_type: imageMimeType,
+                          data: imageBase64
+                      }
+                  }
+              ]
+          }],
+          // Optional: Add generationConfig for safety settings, etc. if needed
+          // generationConfig: { ... },
+          // safetySettings: [ ... ]
+      };
+
+      try {
+          console.log("Sending request to Gemini API...");
+          const response = await fetch(this.#apiEndpoint, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(requestBody),
+          });
+
+          const responseData = await response.json(); // Try parsing JSON regardless of status for error details
+
+          if (!response.ok) {
+              console.error("API Error Response:", responseData);
+              const errorMessage = responseData?.error?.message || `API request failed with status ${response.status}`;
+              throw new Error(errorMessage);
+          }
+
+          console.log("API Response:", responseData);
+
+          // --- Extract the text result ---
+          const candidate = responseData.candidates?.[0];
+          if (candidate?.content?.parts?.[0]?.text) {
+              const resultText = candidate.content.parts[0].text.trim();
+              console.log("Identified Object Name:", resultText);
+              return resultText; // Success!
+          } else if (responseData.promptFeedback?.blockReason) {
+              // Handle cases where the prompt or image was blocked
+              console.warn(`Request blocked: ${responseData.promptFeedback.blockReason}`, responseData.promptFeedback.safetyRatings);
+              return `Blocked: ${responseData.promptFeedback.blockReason}`; // Return specific block reason
+          } else {
+              console.error("Could not extract text from API response structure.", responseData);
+              throw new Error("Invalid API response structure received.");
+          }
+
+      } catch (error) {
+          console.error('Error calling Gemini API:', error);
+          // Propagate the error or return null to indicate failure
+          // Depending on how you want the calling code to handle it
+          // Returning null might be simpler for the caller to check
+          return null;
+      }
+  }
+
+  /**
+   * Orchestrates the process: takes a File object, converts it, and calls the API.
+   * @param {File} imageFile - The image file object from an input element.
+   * @param {string} [language='English'] - The desired language for the result.
+   * @returns {Promise<string|null>} A promise resolving with the identified name, a block reason, or null on error.
+   */
+  async recognizeImage(imageFile, language = 'English') {
+      try {
+          // 1. Validate and Convert image to Base64
+          const imageDataBase64 = await this.convertImageToBase64(imageFile);
+          const imageMimeType = imageFile.type;
+
+          // 2. Call the Gemini API
+          const identifiedName = await this.identifyObjectWithGemini(
+              imageDataBase64,
+              imageMimeType,
+              language
+          );
+
+          return identifiedName;
+
+      } catch (error) {
+          console.error('Error processing image file:', error);
+          return null;
+      }
   }
 }
 
