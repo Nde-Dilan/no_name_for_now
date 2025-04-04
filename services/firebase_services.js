@@ -1,7 +1,7 @@
 // Replace the CDN imports with npm imports
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
 // Firebase Configuration - Make sure these details match exactly with your Firebase project
 const firebaseConfig = {
