@@ -1,159 +1,325 @@
+// Import the TranslationService
+import { TranslationService } from './services/firebase_services.js';
+
+// Initialize translation service
+const translationService = new TranslationService();
+
 document.addEventListener("DOMContentLoaded", () => {
-  initSearchResults()
-})
-
-function initSearchResults() {
-  // Handle search item selection
-  const searchItems = document.querySelectorAll(".search-item")
-  searchItems.forEach((item) => {
-    item.addEventListener("click", () => {
-      // Remove active class from all items
-      searchItems.forEach((i) => i.classList.remove("active"))
-
-      // Add active class to clicked item
-      item.classList.add("active")
-
-      // Update search input with selected text
-      const searchInput = document.getElementById("search-input")
-      searchInput.value = item.textContent
-
-      // In a real app, this would trigger a new search
-      updateSearchResults(item.textContent)
-    })
-  })
-
-  // Handle add translation button
-  const addTranslationBtn = document.querySelector(".add-translation-btn")
-  addTranslationBtn.addEventListener("click", () => {
-    // In a real app, this would open a form to add translation
-    alert("This would open a form to add your translation contribution!")
-  })
-
-  // Handle language links
-  const languageLinks = document.querySelectorAll(".language-link")
-  languageLinks.forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault()
-      // In a real app, this would navigate to the language dictionary
-      const language = link.textContent.toLowerCase()
-      alert(`Navigating to ${language} dictionary...`)
-    })
-  })
-}
-
-function updateSearchResults(searchText) {
-  // This is a placeholder function for demonstration
-  // In a real app, this would fetch new results from the server
-
-  // Update search query title
-  const searchQuery = document.querySelector(".search-query")
-  searchQuery.textContent = `Translation of "${searchText}" into Ghomálá'`
-
-  // Update no results box if needed
-  const noResultsBox = document.querySelector(".no-results-box p")
-  noResultsBox.innerHTML = `Currently we have no translations for <strong>"${searchText}"</strong> in the dictionary, maybe you can add one? Make sure to check automatic translation, translation memory or indirect translations.`
-}
-
-
-document.addEventListener("DOMContentLoaded", function () {
-  const keyboardContainer = document.getElementById("aglc-keyboard");
-  const closeKeyboardBtn = document.querySelector(".close-keyboard");
-
-  // Close the keyboard when the button is clicked
-  closeKeyboardBtn.addEventListener("click", function () {
-    keyboardContainer.style.display = "none";
-  });
+  // Get current translation from localStorage
+  const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
+  
+  // Setup UI based on current translation
+  if (currentTranslation) {
+    setupTranslationUI(currentTranslation);
+    loadRecentSearches();
+  }
+  
+  // Setup event listeners
+  setupEventListeners();
+  setupModalEventListeners();
 });
 
+function setupTranslationUI(translation) {
+  // Update query display elements
+  document.getElementById('query-text').textContent = translation.originalText;
+  document.getElementById('no-results-query').textContent = translation.originalText;
+  document.getElementById('source-language-display').textContent = 
+    capitalizeFirstLetter(translation.sourceLang);
+  document.getElementById('target-language-display').textContent = 
+    capitalizeFirstLetter(translation.targetLang);
+  document.getElementById('search-input').value = translation.originalText;
+  
+  // Set languages on the modal dropdowns
+  document.getElementById('modal-source-lang-text').textContent = 
+    capitalizeFirstLetter(translation.sourceLang);
+  document.getElementById('modal-target-lang-text').textContent = 
+    capitalizeFirstLetter(translation.targetLang);
+  
+  // Update similar phrases header
+  document.getElementById('similar-phrases-title').textContent = 
+    `SIMILAR PHRASES WITH TRANSLATIONS`;
+    
+  // Pre-fill the form with the search query
+  document.getElementById('sourceText').value = translation.originalText;
+  
+  // Search for translations
+  searchForTranslation(translation);
+}
 
+async function searchForTranslation(translation) {
+  try {
+    // Search for exact translation
+    const results = await translationService.searchTranslations(
+      translation.sourceLang,
+      translation.targetLang,
+      translation.originalText
+    );
+    
+    if (results && results.length > 0) {
+      // Show translation result
+      const translationResult = document.getElementById('translation-result');
+      translationResult.innerHTML = `<div class="translation-text">${results[0].targetText}</div>`;
+      translationResult.classList.remove('no-results-box');
+      
+      // Save translation to history
+      saveTranslationToHistory(translation, results[0].targetText);
+    } else {
+      // Search for similar translations
+      const similarResults = await translationService.searchSimilarTranslations(
+        translation.sourceLang,
+        translation.targetLang,
+        translation.originalText
+      );
+      
+      // Display similar translations
+      displaySimilarTranslations(similarResults);
+    }
+  } catch (error) {
+    console.error("Error searching for translation:", error);
+  }
+}
 
+function displaySimilarTranslations(translations) {
+  const similarPhrasesList = document.getElementById('similar-phrases-list');
+  
+  if (translations && translations.length > 0) {
+    similarPhrasesList.innerHTML = '';
+    translations.forEach(translation => {
+      similarPhrasesList.innerHTML += `
+        <div class="similar-phrase-item">
+          <div class="original-phrase">"${translation.sourceText}"</div>
+          <div class="translated-phrase">${translation.targetText}</div>
+        </div>
+      `;
+    });
+  } else {
+    similarPhrasesList.innerHTML = `<p>No similar translations found.</p>`;
+  }
+}
 
-document.addEventListener("DOMContentLoaded", function () {
-  const keyboardBtn = document.querySelector(".keyboard-btn");
-  const keyboardContainer = document.getElementById("aglc-keyboard");
-  const textInput = document.getElementById("translation-text");
-  let isShiftActive = false;
-  let isCapsActive = false;
+function saveTranslationToHistory(translation, translatedText) {
+  // Get existing history
+  const history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+  
+  // Find and update or add translation
+  const existingIndex = history.findIndex(item => 
+    item.sourceLang === translation.sourceLang &&
+    item.targetLang === translation.targetLang &&
+    item.originalText === translation.originalText
+  );
+  
+  if (existingIndex !== -1) {
+    history[existingIndex].translatedText = translatedText;
+  } else {
+    const newTranslation = {
+      ...translation,
+      translatedText,
+      timestamp: new Date().toISOString(),
+      id: Date.now()
+    };
+    history.unshift(newTranslation);
+  }
+  
+  // Keep only recent items
+  const updatedHistory = history.slice(0, 100);
+  localStorage.setItem('translationHistory', JSON.stringify(updatedHistory));
+}
 
-  // Afficher / Cacher le clavier
-  keyboardBtn.addEventListener("click", function () {
-    keyboardContainer.style.display =
-      keyboardContainer.style.display === "none" ? "flex" : "none";
-  });
+function loadRecentSearches() {
+  const recentSearchesContainer = document.getElementById('recent-searches');
+  const history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+  
+  if (history.length > 0) {
+    recentSearchesContainer.innerHTML = '';
+    history.slice(0, 5).forEach(item => {
+      recentSearchesContainer.innerHTML += `
+        <div class="search-item" data-id="${item.id}">
+          <div class="search-text">${item.originalText}</div>
+          <div class="search-langs">${item.sourceLang} → ${item.targetLang}</div>
+        </div>
+      `;
+    });
+  } else {
+    recentSearchesContainer.innerHTML = `<p>No recent searches</p>`;
+  }
+}
 
-  // Ajouter un caractère au champ de texte
-  document.querySelectorAll(".key").forEach((key) => {
-    key.addEventListener("click", function () {
-      let char = this.textContent;
-
-      if (this.classList.contains("backspace")) {
-        textInput.value = textInput.value.slice(0, -1);
-      } else if (this.classList.contains("space")) {
-        textInput.value += " ";
-      } else if (this.classList.contains("return")) {
-        textInput.value += "\n";
-      } else if (this.classList.contains("shift")) {
-        isShiftActive = !isShiftActive;
-      } else if (this.classList.contains("capslock")) {
-        isCapsActive = !isCapsActive;
-      } else {
-        if (isShiftActive || isCapsActive) {
-          char = char.toUpperCase();
-        } else {
-          char = char.toLowerCase();
+function setupEventListeners() {
+  // Add translation button opens modal
+  const addTranslationBtn = document.getElementById('translate-btn');
+  const modal = document.getElementById('translation-modal');
+  
+  if (addTranslationBtn && modal) {
+    addTranslationBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openModal();
+    });
+  }
+  
+  // Search item clicks
+  const recentSearches = document.getElementById('recent-searches');
+  if (recentSearches) {
+    recentSearches.addEventListener('click', function(e) {
+      const searchItem = e.target.closest('.search-item');
+      if (searchItem) {
+        const itemId = searchItem.dataset.id;
+        const history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
+        const selectedItem = history.find(item => item.id.toString() === itemId);
+        
+        if (selectedItem) {
+          // Set as current translation
+          localStorage.setItem('currentTranslation', JSON.stringify(selectedItem));
+          // Reload the page to display the selected translation
+          location.reload();
         }
-        textInput.value += char;
+      }
+    });
+  }
+}
+
+function setupModalEventListeners() {
+  const modal = document.getElementById('translation-modal');
+  const closeBtn = document.querySelector('.modal-close');
+  const form = document.getElementById('translationForm');
+  
+  // Close button
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+  
+  // Click outside to close
+  window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+  
+  // Form submission
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      await handleFormSubmission();
+    });
+  }
+  
+  // Character counters
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', function() {
+      const charCountEl = this.closest('.input-wrapper').querySelector('.char-count');
+      if (charCountEl) {
+        charCountEl.textContent = `${this.value.length}/500`;
       }
     });
   });
-});
+}
 
-
-document.addEventListener("click", (event) => {
-  const keyboardContainer = document.getElementById("aglc-keyboard");
-  if (!event.target.closest("#aglc-keyboard") && !event.target.closest(".keyboard-btn")) {
-    keyboardContainer.style.display = "none";
+function openModal() {
+  const modal = document.getElementById('translation-modal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling
+    
+    // Pre-fill with current translation info
+    const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
+    if (currentTranslation) {
+      document.getElementById('sourceText').value = currentTranslation.originalText;
+      // Update modal language display
+      document.getElementById('modal-source-lang-text').textContent = 
+        capitalizeFirstLetter(currentTranslation.sourceLang);
+      document.getElementById('modal-target-lang-text').textContent = 
+        capitalizeFirstLetter(currentTranslation.targetLang);
+    }
   }
-});
+}
 
-const keyboardContainer = document.getElementById("aglc-keyboard");
-let isDragging = false;
-let offset = { x: 0, y: 0 };
-
-keyboardContainer.addEventListener("mousedown", (e) => {
-  isDragging = true;
-  offset.x = e.clientX - keyboardContainer.getBoundingClientRect().left;
-  offset.y = e.clientY - keyboardContainer.getBoundingClientRect().top;
-});
-
-document.addEventListener("mousemove", (e) => {
-  if (isDragging) {
-    keyboardContainer.style.position = 'absolute';
-    keyboardContainer.style.left = `${e.clientX - offset.x}px`;
-    keyboardContainer.style.top = `${e.clientY - offset.y}px`;
+function closeModal() {
+  const modal = document.getElementById('translation-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
   }
-});
+}
 
-document.addEventListener("mouseup", () => {
-  isDragging = false;
-});
+async function handleFormSubmission() {
+  const sourceText = document.getElementById('sourceText').value.trim();
+  const targetText = document.getElementById('targetText').value.trim();
+  const exampleSource = document.getElementById('exampleSource').value.trim();
+  const exampleTarget = document.getElementById('exampleTarget').value.trim();
+  
+  const sourceLang = document.getElementById('modal-source-lang-text').textContent.trim().toLowerCase();
+  const targetLang = document.getElementById('modal-target-lang-text').textContent.trim().toLowerCase();
+  
+  if (!sourceText || !targetText) {
+    alert('Please fill in both source and target text fields.');
+    return;
+  }
+  
+  try {
+    // Create translation data
+    const translationData = {
+      sourceText,
+      targetText,
+      sourceLang,
+      targetLang,
+      examples: []
+    };
+    
+    // Add example if provided
+    if (exampleSource && exampleTarget) {
+      translationData.examples.push({
+        source: exampleSource,
+        target: exampleTarget
+      });
+    }
+    
+    // Show loading state
+    const submitButton = document.querySelector('.submit-translation-btn');
+    const originalButtonText = submitButton.textContent;
+    submitButton.textContent = 'Submitting...';
+    submitButton.disabled = true;
+    
+    console.log("About to submit translation data:", translationData);
+    
+    try {
+      // Submit to Firebase
+      await translationService.addTranslation(translationData);
+      
+      // Show success and close modal
+      alert('Thank you for your contribution! Your translation has been submitted for review.');
+      closeModal();
+      
+      // Update the UI to show the new translation
+      const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
+      if (currentTranslation) {
+        const translationResult = document.getElementById('translation-result');
+        translationResult.innerHTML = `
+          <div class="translation-text">
+            ${targetText}
+            <div class="translation-note">
+              (Your contribution has been submitted and will be reviewed by our team)
+            </div>
+          </div>
+        `;
+        translationResult.classList.remove('no-results-box');
+      }
+    } catch (firebaseError) {
+      console.error('Firebase error:', firebaseError);
+      alert(`Error: ${firebaseError.message || 'Could not save translation. Please try again.'}`);
+    }
+    
+  } catch (error) {
+    console.error('Error in form submission process:', error);
+    alert('Error submitting your translation. Please try again.');
+  } finally {
+    // Always reset the button state
+    const submitButton = document.querySelector('.submit-translation-btn');
+    if (submitButton) {
+      submitButton.textContent = 'Submit Translation';
+      submitButton.disabled = false;
+    }
+  }
+}
 
-
-document.addEventListener("DOMContentLoaded", function () {
-  const keyboardContainer = document.getElementById("aglc-keyboard");
-  const textInput = document.getElementById("search-input"); // Utilisez le champ correspondant
-
-  const keyboardBtn = document.querySelector(".keyboard-btn");
-  keyboardBtn.addEventListener("click", function () {
-    keyboardContainer.style.display =
-      keyboardContainer.style.display === "none" ? "flex" : "none";
-  });
-
-  // Ajouter le caractère au champ de texte
-  document.querySelectorAll(".key").forEach((key) => {
-    key.addEventListener("click", function () {
-      let char = this.getAttribute("data-char");
-      textInput.value += char; // Ajouter le caractère au champ de texte
-    });
-  });
-});
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}

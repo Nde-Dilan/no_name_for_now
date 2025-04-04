@@ -28,32 +28,32 @@
               <button class="login-btn">Log in</button>
             </a>
 
-           <!-- User profile (hidden by default, shown when logged in) -->
-<div class="user-profile" id="user-profile" style="display: none">
-  <img
-    src="img/default-user.png"
-    alt="User Profile"
-    class="user-avatar"
-  />
-  
-  <!-- User dropdown menu -->
-  <div class="user-dropdown" id="user-dropdown">
-    <div class="dropdown-header">
-      <span id="user-email">user@example.com</span>
-    </div>
-    <div class="dropdown-divider"></div>
-    <a href="#" class="dropdown-item" id="profile-link">
-      <i class="fas fa-user"></i> Profile
-    </a>
-    <a href="#" class="dropdown-item" id="settings-link">
-      <i class="fas fa-cog"></i> Settings
-    </a>
-    <div class="dropdown-divider"></div>
-    <a href="#" class="dropdown-item" id="logout-link">
-      <i class="fas fa-sign-out-alt"></i> Logout
-    </a>
-  </div>
-</div>
+            <!-- User profile (hidden by default, shown when logged in) -->
+            <div class="user-profile" id="user-profile" style="display: none">
+              <img
+                src="img/default-user.png"
+                alt="User Profile"
+                class="user-avatar"
+              />
+
+              <!-- User dropdown menu -->
+              <div class="user-dropdown" id="user-dropdown">
+                <div class="dropdown-header">
+                  <span id="user-email">user@example.com</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" id="profile-link">
+                  <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="#" class="dropdown-item" id="settings-link">
+                  <i class="fas fa-cog"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="#" class="dropdown-item" id="logout-link">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -62,9 +62,9 @@
         <div class="logo-container">
           <h1 class="app-name">CamMT</h1>
           <h2 class="language-pair">
-            <i class="fas fa-language"></i> Experience seamless translation: <span class="highlight">French ⟷ Ghomálá'</span>
-            </h2>
-         
+            <i class="fas fa-language"></i> Experience seamless translation:
+            <span class="highlight">French ⟷ Ghomálá</span>
+          </h2>
         </div>
 
         <div class="translator">
@@ -87,8 +87,7 @@
 
             <div class="dropdown">
               <button class="dropdown-btn">
-                Ghomálá'
-                <i class="fas fa-chevron-down"></i>
+                Ghomálá' <i class="fas fa-chevron-down"></i>
               </button>
               <div class="dropdown-content" id="target-languages">
                 <a href="#" data-lang="ghomala">Ghomálá'</a>
@@ -103,7 +102,7 @@
             <input
               type="text"
               id="translation-text"
-              placeholder="Translate from French into Ghomálá'"
+              placeholder="Translate from French into Ghomálá"
             />
             <button class="camera-btn" title="Capture image">
               <i class="fas fa-camera"></i>
@@ -115,7 +114,7 @@
               <i class="fas fa-keyboard"></i>
             </button>
             <button class="search-btn" id="translate-btn">
-              <a href="./results.html"><i class="fas fa-search"></i></a>
+              <i class="fas fa-search"></i>
             </button>
 
             <!-- Hidden file input for image upload -->
@@ -132,7 +131,7 @@
       <footer>
         <p>
           CamMT provides not only full translation experience
-          <span class="language-pair-footer">French - Ghomálá'</span>, but also
+          <span class="language-pair-footer">French - Ghomálá</span>, but also
           dictionaries for every existing pairs of languages - online and for
           free.
         </p>
@@ -170,7 +169,6 @@
       </div>
     </div>
 
-    <script src="script.js"></script>
     <!-- Clavier Virtuel AGLC -->
     <div id="aglc-keyboard" class="keyboard-container" style="display: none">
       <div class="keyboard-header">
@@ -255,5 +253,8 @@
         <button class="key space">␣</button>
       </div>
     </div>
+
+    <script src="script.js"></script>
+    <script src="translate.js"></script>
   </body>
 </html>

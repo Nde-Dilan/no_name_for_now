@@ -1,60 +1,3 @@
-
-
-
-// Check login status when page loads
-document.addEventListener("DOMContentLoaded", function () {
-  checkLoginStatus();
-});
-
-
-// Handle user profile and authentication
-document.addEventListener('DOMContentLoaded', function() {
-  const userProfile = document.getElementById('user-profile');
-  const userDropdown = document.getElementById('user-dropdown');
-  const userEmail = document.getElementById('user-email');
-  const loginLink = document.getElementById('login-link');
-  const logoutLink = document.getElementById('logout-link');
-  
-  // Check login status
-  checkLoginStatus();
-  
-  // Toggle dropdown when clicking on profile
-  if (userProfile) {
-    userProfile.addEventListener('click', function(e) {
-      e.stopPropagation();
-      userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
-      
-      // Update user email in dropdown
-      if (userEmail) {
-        userEmail.textContent = localStorage.getItem('userEmail') || 'User';
-      }
-    });
-  }
-  
-  // Handle logout
-  if (logoutLink) {
-    logoutLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Clear authentication data
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userAvatar');
-      
-      // Redirect to login page or refresh current page
-      window.location.href = 'index.html';
-    });
-  }
-  
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function() {
-    if (userDropdown) {
-      userDropdown.style.display = 'none';
-    }
-  });
-}); 
-
 function checkLoginStatus() {
   // Check if user is logged in (using localStorage in this example)
   // In a real app, you'd verify with your backend server
@@ -63,7 +6,7 @@ function checkLoginStatus() {
   const loginLink = document.getElementById("login-link");
   const userProfile = document.getElementById("user-profile");
 
-  if (isLoggedIn) {
+  if (isLoggedIn && !window.location.pathname.includes("results.html")) {
     // User is logged in - show profile, hide login button
     loginLink.style.display = "none";
     userProfile.style.display = "block";
@@ -73,43 +16,48 @@ function checkLoginStatus() {
     // userAvatar.src = localStorage.getItem('userAvatar') || 'assets/default-avatar.png';
   } else {
     // User is not logged in - show login button, hide profile
-    loginLink.style.display = "block";
-    userProfile.style.display = "none";
+    if (!window.location.pathname.includes("results.html")) {
+      loginLink.style.display = "block";
+      userProfile.style.display = "none";
+    }
   }
 }
 
-// Example: Add a click handler for the profile image to show a dropdown menu
-document.addEventListener("DOMContentLoaded", function () {
-  const userProfile = document.getElementById("user-profile");
-  if (userProfile) {
-    userProfile.addEventListener("click", function () {
-      // Show user menu or profile options
-      console.log("User profile clicked");
-      // You could add dropdown menu here
-    });
-  }
-});
-
-// Language selector functionality
 class LanguageSelector {
   constructor() {
     this.dropdowns = document.querySelectorAll(".dropdown");
     this.sourceLanguageBtn = document.querySelector(".dropdown-btn");
     this.targetLanguageBtn = document.querySelectorAll(".dropdown-btn")[1];
     this.swapBtn = document.querySelector(".swap-btn");
+
+    // These might not exist on all pages
     this.languagePairHeading = document.querySelector(".language-pair");
     this.languagePairFooter = document.querySelector(".language-pair-footer");
-    this.translationPlaceholder = document.getElementById("translation-text");
+    this.translationPlaceholder =
+      document.getElementById("translation-text") ||
+      document.getElementById("search-input");
 
-    this.initDropdowns();
-    this.initSwapButton();
+    // Only initialize if we have dropdowns
+    if (this.dropdowns && this.dropdowns.length > 0) {
+      this.initDropdowns();
+
+      if (this.swapBtn) {
+        this.initSwapButton();
+      }
+    }
+
+    console.log("I am being initialize");
   }
 
   initDropdowns() {
     this.dropdowns.forEach((dropdown) => {
       const btn = dropdown.querySelector(".dropdown-btn");
 
-      btn.addEventListener("click", () => {
+      if (!btn) return; // Skip if button doesn't exist
+
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+
         // Close any open dropdowns first
         this.dropdowns.forEach((d) => {
           if (d !== dropdown && d.classList.contains("active")) {
@@ -124,21 +72,26 @@ class LanguageSelector {
       options.forEach((option) => {
         option.addEventListener("click", (e) => {
           e.preventDefault();
+          e.stopPropagation();
           const selectedLang = option.textContent;
+
+          // Use the original btn reference instead of newBtn
           btn.innerHTML = `${selectedLang} <i class="fas fa-chevron-down"></i>`;
           dropdown.classList.remove("active");
-          this.updateLanguagePair();
+
+          // Check if function exists before calling
+          if (typeof this.updateLanguagePair === "function") {
+            this.updateLanguagePair();
+          }
         });
       });
     });
 
     // Close dropdowns when clicking outside
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".dropdown")) {
-        this.dropdowns.forEach((dropdown) => {
-          dropdown.classList.remove("active");
-        });
-      }
+    document.addEventListener("click", () => {
+      this.dropdowns.forEach((dropdown) => {
+        dropdown.classList.remove("active");
+      });
     });
   }
 
@@ -151,6 +104,9 @@ class LanguageSelector {
         .trim()
         .split(" ")[0];
 
+      console.log("sourceLang :" + sourceLang);
+      console.log("targetLang :" + targetLang);
+
       this.sourceLanguageBtn.innerHTML = `${targetLang} <i class="fas fa-chevron-down"></i>`;
       this.targetLanguageBtn.innerHTML = `${sourceLang} <i class="fas fa-chevron-down"></i>`;
 
@@ -162,13 +118,23 @@ class LanguageSelector {
     const sourceLang = this.sourceLanguageBtn.textContent.trim().split(" ")[0];
     const targetLang = this.targetLanguageBtn.textContent.trim().split(" ")[0];
 
-    this.languagePairHeading.innerHTML = `<i class="fas fa-language"></i> Experience seamless translation: <span class="highlight"> ${sourceLang}⟷${targetLang}</span>`;
-    this.languagePairFooter.textContent = `${sourceLang} - ${targetLang}`;
-    this.translationPlaceholder.placeholder = `Translate from ${sourceLang} into ${targetLang}`;
+    // Safe updates: check if elements exist first
+    if (this.languagePairHeading) {
+      this.languagePairHeading.innerHTML = `<i class="fas fa-language"></i> Experience seamless translation: <span class="highlight">${sourceLang} ⟷ ${targetLang}</span>`;
+    }
+
+    if (this.languagePairFooter) {
+      this.languagePairFooter.textContent = `${sourceLang} - ${targetLang}`;
+    }
+
+    if (this.translationPlaceholder) {
+      this.translationPlaceholder.placeholder = `Translate from ${sourceLang} into ${targetLang}`;
+    }
   }
 }
 
 // Image Upload and Camera Functionality
+
 class ImageHandler {
   constructor() {
     // Get elements
@@ -519,8 +485,10 @@ class ImageRecognitionService {
   // --- Configuration ---
   // IMPORTANT: Replace with your actual Gemini API key from Google AI Studio.
   // !! DO NOT hardcode this in production client-side code !!
-  #apiKey = process.env.GEMINI_API_KEY; // CHANGE THIS TO YOUR API KEY
-  #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.#apiKey}`;
+  #apiKey = "process.env.GEMINI_API_KEY"; // CHANGE THIS TO YOUR API KEY
+  #apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${
+    this.#apiKey
+  }`;
 
   /**
    * Converts an image File object to a Base64 encoded string.
@@ -528,19 +496,19 @@ class ImageRecognitionService {
    * @returns {Promise<string>} A promise that resolves with the Base64 string (without prefix).
    */
   convertImageToBase64(file) {
-      return new Promise((resolve, reject) => {
-          if (!file || !file.type.startsWith('image/')) {
-              return reject(new Error("Invalid file type. Please provide an image."));
-          }
-          const reader = new FileReader();
-          reader.onload = () => {
-              // result is "data:image/jpeg;base64,..." - we only want the part after the comma
-              const base64String = reader.result.split(",")[1];
-              resolve(base64String);
-          };
-          reader.onerror = (error) => reject(error);
-          reader.readAsDataURL(file); // Reads the file as a data URL (includes base64)
-      });
+    return new Promise((resolve, reject) => {
+      if (!file || !file.type.startsWith("image/")) {
+        return reject(new Error("Invalid file type. Please provide an image."));
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        // result is "data:image/jpeg;base64,..." - we only want the part after the comma
+        const base64String = reader.result.split(",")[1];
+        resolve(base64String);
+      };
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file); // Reads the file as a data URL (includes base64)
+    });
   }
 
   /**
@@ -550,69 +518,82 @@ class ImageRecognitionService {
    * @param {string} [language='English'] - The desired language for the object name (e.g., 'English', 'French').
    * @returns {Promise<string|null>} A promise that resolves with the identified object name/description in the specified language, or null on error/block.
    */
-  async identifyObjectWithGemini(imageBase64, imageMimeType, language = 'English') {
-      // Construct the prompt for Gemini
-      const prompt = `Identify the main object or scene in this image. Return only the most specific and common name for it in ${language}. If unsure, provide the most likely category. Do not add any explanation or preamble.`;
+  async identifyObjectWithGemini(
+    imageBase64,
+    imageMimeType,
+    language = "English"
+  ) {
+    // Construct the prompt for Gemini
+    const prompt = `Identify the main object or scene in this image. Return only the most specific and common name for it in ${language}. If unsure, provide the most likely category. Do not add any explanation or preamble.`;
 
-      const requestBody = {
-          contents: [{
-              parts: [
-                  { text: prompt },
-                  {
-                      inline_data: {
-                          mime_type: imageMimeType,
-                          data: imageBase64
-                      }
-                  }
-              ]
-          }],
-          // Optional: Add generationConfig for safety settings, etc. if needed
-          // generationConfig: { ... },
-          // safetySettings: [ ... ]
-      };
-
-      try {
-          console.log("Sending request to Gemini API...");
-          const response = await fetch(this.#apiEndpoint, {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
+    const requestBody = {
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: imageMimeType,
+                data: imageBase64,
               },
-              body: JSON.stringify(requestBody),
-          });
+            },
+          ],
+        },
+      ],
+      // Optional: Add generationConfig for safety settings, etc. if needed
+      // generationConfig: { ... },
+      // safetySettings: [ ... ]
+    };
 
-          const responseData = await response.json(); // Try parsing JSON regardless of status for error details
+    try {
+      console.log("Sending request to Gemini API...");
+      const response = await fetch(this.#apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
 
-          if (!response.ok) {
-              console.error("API Error Response:", responseData);
-              const errorMessage = responseData?.error?.message || `API request failed with status ${response.status}`;
-              throw new Error(errorMessage);
-          }
+      const responseData = await response.json(); // Try parsing JSON regardless of status for error details
 
-          console.log("API Response:", responseData);
-
-          // --- Extract the text result ---
-          const candidate = responseData.candidates?.[0];
-          if (candidate?.content?.parts?.[0]?.text) {
-              const resultText = candidate.content.parts[0].text.trim();
-              console.log("Identified Object Name:", resultText);
-              return resultText; // Success!
-          } else if (responseData.promptFeedback?.blockReason) {
-              // Handle cases where the prompt or image was blocked
-              console.warn(`Request blocked: ${responseData.promptFeedback.blockReason}`, responseData.promptFeedback.safetyRatings);
-              return `Blocked: ${responseData.promptFeedback.blockReason}`; // Return specific block reason
-          } else {
-              console.error("Could not extract text from API response structure.", responseData);
-              throw new Error("Invalid API response structure received.");
-          }
-
-      } catch (error) {
-          console.error('Error calling Gemini API:', error);
-          // Propagate the error or return null to indicate failure
-          // Depending on how you want the calling code to handle it
-          // Returning null might be simpler for the caller to check
-          return null;
+      if (!response.ok) {
+        console.error("API Error Response:", responseData);
+        const errorMessage =
+          responseData?.error?.message ||
+          `API request failed with status ${response.status}`;
+        throw new Error(errorMessage);
       }
+
+      console.log("API Response:", responseData);
+
+      // --- Extract the text result ---
+      const candidate = responseData.candidates?.[0];
+      if (candidate?.content?.parts?.[0]?.text) {
+        const resultText = candidate.content.parts[0].text.trim();
+        console.log("Identified Object Name:", resultText);
+        return resultText; // Success!
+      } else if (responseData.promptFeedback?.blockReason) {
+        // Handle cases where the prompt or image was blocked
+        console.warn(
+          `Request blocked: ${responseData.promptFeedback.blockReason}`,
+          responseData.promptFeedback.safetyRatings
+        );
+        return `Blocked: ${responseData.promptFeedback.blockReason}`; // Return specific block reason
+      } else {
+        console.error(
+          "Could not extract text from API response structure.",
+          responseData
+        );
+        throw new Error("Invalid API response structure received.");
+      }
+    } catch (error) {
+      console.error("Error calling Gemini API:", error);
+      // Propagate the error or return null to indicate failure
+      // Depending on how you want the calling code to handle it
+      // Returning null might be simpler for the caller to check
+      return null;
+    }
   }
 
   /**
@@ -621,109 +602,106 @@ class ImageRecognitionService {
    * @param {string} [language='English'] - The desired language for the result.
    * @returns {Promise<string|null>} A promise resolving with the identified name, a block reason, or null on error.
    */
-  async recognizeImage(imageFile, language = 'English') {
-      try {
-          // 1. Validate and Convert image to Base64
-          const imageDataBase64 = await this.convertImageToBase64(imageFile);
-          const imageMimeType = imageFile.type;
+  async recognizeImage(imageFile, language = "English") {
+    try {
+      // 1. Validate and Convert image to Base64
+      const imageDataBase64 = await this.convertImageToBase64(imageFile);
+      const imageMimeType = imageFile.type;
 
-          // 2. Call the Gemini API
-          const identifiedName = await this.identifyObjectWithGemini(
-              imageDataBase64,
-              imageMimeType,
-              language
-          );
+      // 2. Call the Gemini API
+      const identifiedName = await this.identifyObjectWithGemini(
+        imageDataBase64,
+        imageMimeType,
+        language
+      );
 
-          return identifiedName;
-
-      } catch (error) {
-          console.error('Error processing image file:', error);
-          return null;
-      }
+      return identifiedName;
+    } catch (error) {
+      console.error("Error processing image file:", error);
+      return null;
+    }
   }
 }
-
-const translations = {
-  "french-ghomala": {
-    bonjour: "bongu",
-    famille: "fami",
-    // Add more translations
-  },
-  "english-ghomala": {
-    hello: "bongu",
-    // Add more translations
-  },
-  "french-fulfulde": {
-    bonjour: "djamina",
-    // Add more translations
-  },
-  "english-fulfulde": {
-    hello: "djamina",
-    // Add more translations
-  },
-};
-
-function translateText() {
-  const sourceText = document.getElementById("translation-text").value.trim();
-  const sourceLang = document
-    .querySelector(".dropdown-btn")
-    .textContent.trim()
-    .toLowerCase();
-  const targetLang = document
-    .querySelectorAll(".dropdown-btn")[1]
-    .textContent.trim()
-    .toLowerCase();
-
-  const translationKey = `${sourceLang}-${targetLang}`;
-  const outputField = document.getElementById("output-text"); // Ensure this ID exists in results.html
-  const noResultsBox = document.getElementById("no-results");
-
-  if (
-    translations[translationKey] &&
-    translations[translationKey][sourceText]
-  ) {
-    const translatedText = translations[translationKey][sourceText];
-    outputField.value = translatedText; // Display the translated text
-    noResultsBox.style.display = "none"; // Hide no results box
-  } else {
-    outputField.value = ""; // Clear output
-    noResultsBox.style.display = "block"; // Show no results box
-  }
-}
-
-// Attach event listener to the translate button
-document.addEventListener("DOMContentLoaded", () => {
-  const translateBtn = document.getElementById("translate-btn");
-  translateBtn.addEventListener("click", translateText);
-});
-
-// Initialize on page load
-document.addEventListener("DOMContentLoaded", () => {
-  const langSelector = new LanguageSelector();
-  const imageHandler = new ImageHandler();
-});
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Check login status
+  checkLoginStatus();
+
+  // const langSelector = new LanguageSelector();
+  // const imageHandler = new ImageHandler();
+
+  const userProfile = document.getElementById("user-profile");
+  if (userProfile) {
+    userProfile.addEventListener("click", function () {
+      // Show user menu or profile options
+      console.log("User profile clicked");
+      // You could add dropdown menu here
+    });
+  }
+
+  const userDropdown = document.getElementById("user-dropdown");
+  const userEmail = document.getElementById("user-email");
+  const loginLink = document.getElementById("login-link");
+  const logoutLink = document.getElementById("logout-link");
+
+  // Toggle dropdown when clicking on profile
+  if (userProfile) {
+    userProfile.addEventListener("click", function (e) {
+      e.stopPropagation();
+      userDropdown.style.display =
+        userDropdown.style.display === "block" ? "none" : "block";
+
+      // Update user email in dropdown
+      if (userEmail) {
+        userEmail.textContent = localStorage.getItem("userEmail") || "User";
+      }
+    });
+  }
+
+  // Handle logout
+  if (logoutLink) {
+    logoutLink.addEventListener("click", function (e) {
+      e.preventDefault();
+
+      // Clear authentication data
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userAvatar");
+
+      // Redirect to login page or refresh current page
+      window.location.href = "index.html";
+    });
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function () {
+    if (userDropdown) {
+      userDropdown.style.display = "none";
+    }
+  });
+
   const keyboardContainer = document.getElementById("aglc-keyboard");
+
   const closeKeyboardBtn = document.querySelector(".close-keyboard");
 
   // Close the keyboard when the button is clicked
   closeKeyboardBtn.addEventListener("click", function () {
     keyboardContainer.style.display = "none";
   });
-});
 
-document.addEventListener("DOMContentLoaded", function () {
   const keyboardBtn = document.querySelector(".keyboard-btn");
-  const keyboardContainer = document.getElementById("aglc-keyboard");
+
   const textInput = document.getElementById("translation-text");
   let isShiftActive = false;
   let isCapsActive = false;
 
   // Afficher / Cacher le clavier
   keyboardBtn.addEventListener("click", function () {
+    console.log(keyboardContainer.style.display);
     keyboardContainer.style.display =
       keyboardContainer.style.display === "none" ? "flex" : "none";
+    console.log(keyboardContainer.style.display);
   });
 
   // Ajouter un caractère au champ de texte
@@ -751,20 +729,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
-});
 
-document.addEventListener("click", (event) => {
-  const keyboardContainer = document.getElementById("aglc-keyboard");
-  if (
-    !event.target.closest("#aglc-keyboard") &&
-    !event.target.closest(".keyboard-btn")
-  ) {
-    keyboardContainer.style.display = "none";
-  }
-});
+  document.addEventListener("click", (event) => {
+    const keyboardContainer = document.getElementById("aglc-keyboard");
+    if (
+      !event.target.closest("#aglc-keyboard") &&
+      !event.target.closest(".keyboard-btn")
+    ) {
+      keyboardContainer.style.display = "none";
+    }
+  });
 
-document.addEventListener("DOMContentLoaded", function () {
-  const keyboardContainer = document.getElementById("aglc-keyboard");
   let isDragging = false;
   let offset = { x: 0, y: 0 };
 
@@ -784,21 +759,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.addEventListener("mouseup", () => {
     isDragging = false;
-  });
-
-  const textInput = document.getElementById("search-input"); // Utilisez le champ correspondant
-
-  const keyboardBtn = document.querySelector(".keyboard-btn");
-  keyboardBtn.addEventListener("click", function () {
-    keyboardContainer.style.display =
-      keyboardContainer.style.display === "none" ? "flex" : "none";
-  });
-
-  // Ajouter le caractère au champ de texte
-  document.querySelectorAll(".key").forEach((key) => {
-    key.addEventListener("click", function () {
-      let char = this.getAttribute("data-char");
-      textInput.value += char; // Ajouter le caractère au champ de texte
-    });
   });
 });
