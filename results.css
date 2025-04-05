@@ -41,12 +41,11 @@
   }
   
   #search-input {
-    width: 100%;
-    padding: 10px 40px 10px 10px;
+    width: 100%; /* Ensure it occupies all available space */
+    padding: 10px 10px; /* Adjust padding for better alignment */
     border: 1px solid #e5e7eb;
     border-radius: 5px;
     font-size: 14px;
-    padding-right: 150px; /* Increased to accommodate more buttons */
   }
   
   .search-input-container .keyboard-btn,
@@ -246,6 +245,18 @@
     text-decoration: underline;
   }
   
+  /* Back button */
+  .back-btn {
+    background-color: #f8f9fa;
+    padding: 8px 15px;
+    font-weight: bold;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  
   /* Responsive adjustments */
   @media (max-width: 900px) {
     .results-page {
@@ -262,5 +273,4 @@
       max-height: 300px;
     }
   }
-  
-  
+
