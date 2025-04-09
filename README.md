@@ -15,15 +15,15 @@ CamMT is a translation system designed to facilitate seamless translation betwee
 
 1. **Clone the Repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Nde-Dilan/no_name_for_now.git
    cd no_name_for_now
    ```
 
 2. **Install Dependencies**:
-   Ensure you have a modern browser and a local server setup (e.g., VS Code Live Server or Python's `http.server`).
+   Ensure you have a modern browser and a local server setup (e.g., VS Code Live Server).
 
 3. **Firebase Configuration**:
-   - Update the Firebase configuration in `services/firebase_services.js` with your project details.
+   - Ensure the Firebase configuration in `services/firebase_services.js` is present.
 
 4. **Run the Application**:
    - Open `index.html` in your browser or serve the project using a local server.
@@ -45,10 +45,6 @@ CamMT is a translation system designed to facilitate seamless translation betwee
 
 5. **View Results**:
    - Access translation results and similar phrases on the results page.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository, make your changes, and submit a pull request.
 
 ## License
 

@@ -34,11 +34,12 @@ function showMessage(container, message, isSuccess) {
 // Handle Signup
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.querySelector(".auth-form form");
+  // Create a single message container outside the event listeners
   const messageContainer = document.createElement("div");
   messageContainer.classList.add("message-container");
-  signupForm.parentNode.insertBefore(messageContainer, signupForm);
 
   if (signupForm) {
+    signupForm.parentNode.insertBefore(messageContainer, signupForm);
     signupForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById("email").value;
@@ -81,10 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle Login
   const loginForm = document.querySelector(".auth-form form");
-  const loginMessageContainer = document.createElement("div");
-  loginMessageContainer.classList.add("message-container");
-  loginForm.parentNode.insertBefore(loginMessageContainer, loginForm);
-
+  // Use the same message container for login
   if (loginForm) {
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -114,13 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (user.photoURL) localStorage.setItem("userAvatar", user.photoURL);
 
         showMessage(
-          loginMessageContainer,
+          messageContainer,
           "Login successful! Redirecting...",
           true
         );
         setTimeout(() => (window.location.href = "../index.html"), 1500);
       } catch (error) {
-        showMessage(loginMessageContainer, error.message, false);
+        showMessage(messageContainer, error.message, false);
       }
 
       loginBtn.innerHTML = "Login";
