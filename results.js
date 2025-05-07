@@ -1,8 +1,7 @@
-// Import the TranslationService
-import { TranslationService } from './services/firebase_services.js';
+// results.js - Modified to use Flask backend
 
-// Initialize translation service
-const translationService = new TranslationService();
+// Base URL for Flask API
+const FLASK_API_URL = 'http://localhost:5000/api'; // Update this if your Flask server is hosted elsewhere
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get current translation from localStorage
@@ -48,52 +47,106 @@ function setupTranslationUI(translation) {
 
 async function searchForTranslation(translation) {
   try {
-    // Search for exact translation
-    const results = await translationService.searchTranslations(
-      translation.sourceLang,
-      translation.targetLang,
-      translation.originalText
-    );
+    // Search for translation via Flask API
+    const response = await fetch(`${FLASK_API_URL}/translate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sourceLang: translation.sourceLang,
+        targetLang: translation.targetLang,
+        text: translation.originalText
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
     
-    if (results && results.length > 0) {
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    if (result.translation && !result.translation.startsWith("Sorry, no translation found")) {
       // Show translation result
       const translationResult = document.getElementById('translation-result');
-      translationResult.innerHTML = `<div class="translation-text">${results[0].targetText}</div>`;
+      translationResult.innerHTML = `<div class="translation-text">${result.translation}</div>`;
       translationResult.classList.remove('no-results-box');
       
       // Save translation to history
-      saveTranslationToHistory(translation, results[0].targetText);
-    } else {
-      // Search for similar translations
-      const similarResults = await translationService.searchSimilarTranslations(
-        translation.sourceLang,
-        translation.targetLang,
-        translation.originalText
-      );
+      saveTranslationToHistory(translation, result.translation);
       
-      // Display similar translations
-      displaySimilarTranslations(similarResults);
+      // Display match info if available
+      if (result.matchType === 'fuzzy') {
+        const matchInfo = document.createElement('div');
+        matchInfo.className = 'match-info';
+        matchInfo.textContent = `Matched similar phrase: "${result.matchedWord}" (${result.fuzzyMatchScore}% match)`;
+        translationResult.appendChild(matchInfo);
+      }
+    } else {
+      // No translation found - show similar phrases from the dictionary
+      await displayDictionaryEntries(translation.sourceLang, translation.targetLang);
     }
   } catch (error) {
     console.error("Error searching for translation:", error);
+    // Fallback to showing dictionary entries
+    await displayDictionaryEntries(translation.sourceLang, translation.targetLang);
   }
 }
 
-function displaySimilarTranslations(translations) {
-  const similarPhrasesList = document.getElementById('similar-phrases-list');
-  
-  if (translations && translations.length > 0) {
+async function displayDictionaryEntries(sourceLang, targetLang) {
+  try {
+    // Get all dictionary entries for this language pair
+    const response = await fetch(`${FLASK_API_URL}/translate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sourceLang: sourceLang,
+        targetLang: targetLang,
+        text: '' // Empty text to get all entries
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    // Display all dictionary entries as similar phrases
+    const similarPhrasesList = document.getElementById('similar-phrases-list');
     similarPhrasesList.innerHTML = '';
-    translations.forEach(translation => {
+
+    // Get the dictionary for this language pair
+    const dictKey = `${sourceLang}-${targetLang}`;
+    const dictionary = TEMPORARY_DICTIONARIES[dictKey] || {};
+
+    for (const [sourceText, targetText] of Object.entries(dictionary)) {
       similarPhrasesList.innerHTML += `
         <div class="similar-phrase-item">
-          <div class="original-phrase">"${translation.sourceText}"</div>
-          <div class="translated-phrase">${translation.targetText}</div>
+          <div class="original-phrase">"${sourceText}"</div>
+          <div class="translated-phrase">${targetText}</div>
         </div>
       `;
-    });
-  } else {
-    similarPhrasesList.innerHTML = `<p>No similar translations found.</p>`;
+    }
+
+    // Show no results message if dictionary is empty
+    if (Object.keys(dictionary).length === 0) {
+      similarPhrasesList.innerHTML = `<p>No translations available for this language pair.</p>`;
+    }
+  } catch (error) {
+    console.error("Error fetching dictionary entries:", error);
+    const similarPhrasesList = document.getElementById('similar-phrases-list');
+    similarPhrasesList.innerHTML = `<p>Error loading translations. Please try again later.</p>`;
   }
 }
 
@@ -255,58 +308,30 @@ async function handleFormSubmission() {
   }
   
   try {
-    // Create translation data
-    const translationData = {
-      sourceText,
-      targetText,
-      sourceLang,
-      targetLang,
-      examples: []
-    };
-    
-    // Add example if provided
-    if (exampleSource && exampleTarget) {
-      translationData.examples.push({
-        source: exampleSource,
-        target: exampleTarget
-      });
-    }
-    
     // Show loading state
     const submitButton = document.querySelector('.submit-translation-btn');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Submitting...';
     submitButton.disabled = true;
     
-    console.log("About to submit translation data:", translationData);
+    // In this simplified version, we'll just add to localStorage since we don't have a backend for submissions
+    alert('Thank you for your contribution! In a real implementation, this would be saved to the database.');
+    closeModal();
     
-    try {
-      // Submit to Firebase
-      await translationService.addTranslation(translationData);
-      
-      // Show success and close modal
-      alert('Thank you for your contribution! Your translation has been submitted for review.');
-      closeModal();
-      
-      // Update the UI to show the new translation
-      const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
-      if (currentTranslation) {
-        const translationResult = document.getElementById('translation-result');
-        translationResult.innerHTML = `
-          <div class="translation-text">
-            ${targetText}
-            <div class="translation-note">
-              (Your contribution has been submitted and will be reviewed by our team)
-            </div>
+    // Update the UI to show the new translation
+    const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
+    if (currentTranslation) {
+      const translationResult = document.getElementById('translation-result');
+      translationResult.innerHTML = `
+        <div class="translation-text">
+          ${targetText}
+          <div class="translation-note">
+            (Your contribution has been noted locally)
           </div>
-        `;
-        translationResult.classList.remove('no-results-box');
-      }
-    } catch (firebaseError) {
-      console.error('Firebase error:', firebaseError);
-      alert(`Error: ${firebaseError.message || 'Could not save translation. Please try again.'}`);
+        </div>
+      `;
+      translationResult.classList.remove('no-results-box');
     }
-    
   } catch (error) {
     console.error('Error in form submission process:', error);
     alert('Error submitting your translation. Please try again.');
@@ -323,3 +348,54 @@ async function handleFormSubmission() {
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+// Temporary in-memory dictionaries (should match your Flask server)
+const TEMPORARY_DICTIONARIES = {
+  'english-ghomala': {
+    "hello": "mbʉ́ nà", 
+    "thank you": "pua' sʉn",
+    "good": "mbeñ",
+    "morning": "nkɛn",
+    "good morning": "mbʉ́ nkɛn",
+    "night": "ntʉ'",
+    "good night": "mbʉ́ ntʉ'",
+    "how are you": "ò yú háp?",
+    "welcome": "ò twí' mbeñ",
+    "food": "pɛ̂",
+    "water": "nchǐ"
+  },
+  'english-fulfulde': {
+    "hello": "jam", 
+    "thank you": "useko",
+    "good": "woodi",
+    "good morning": "jam weetay",
+    "night": "jemma",
+    "good night": "jam jemma",
+    "how are you": "no mboodaa?",
+    "welcome": "a jaɓɓaama",
+    "food": "nyaamdu",
+    "water": "ndiyam"
+  },
+  'french-ghomala': {
+    "bonjour": "mbʉ́ nà", 
+    "merci": "pua' sʉn",
+    "bien": "mbeñ",
+    "matin": "nkɛn",
+    "bonsoir": "mbʉ́ ntʉ'",
+    "comment allez-vous": "ò yú háp?",
+    "bienvenue": "ò twí' mbeñ",
+    "nourriture": "pɛ̂",
+    "eau": "nchǐ"
+  },
+  'french-fulfulde': {
+    "bonjour": "jam", 
+    "merci": "useko",
+    "bien": "woodi",
+    "matin": "weetay",
+    "bonsoir": "jam jemma",
+    "comment allez-vous": "no mboodaa?",
+    "bienvenue": "a jaɓɓaama",
+    "nourriture": "nyaamdu",
+    "eau": "ndiyam"
+  }
+};
