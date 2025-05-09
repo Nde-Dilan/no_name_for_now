@@ -1,4 +1,4 @@
-// results.js - Modified to use Flask backend
+// results.js - Frontend code for translation results page
 
 // Base URL for Flask API
 const FLASK_API_URL = 'http://localhost:5000/api'; // Update this if your Flask server is hosted elsewhere
@@ -47,9 +47,14 @@ function setupTranslationUI(translation) {
 
 async function searchForTranslation(translation) {
   try {
+    // Show loading state
+    const translationResult = document.getElementById('translation-result');
+    translationResult.innerHTML = '<div class="loading-spinner"></div>';
+    
     // Search for translation via Flask API
     const response = await fetch(`${FLASK_API_URL}/translate`, {
       method: 'POST',
+      mode: 'cors',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -72,7 +77,6 @@ async function searchForTranslation(translation) {
 
     if (result.translation && !result.translation.startsWith("Sorry, no translation found")) {
       // Show translation result
-      const translationResult = document.getElementById('translation-result');
       translationResult.innerHTML = `<div class="translation-text">${result.translation}</div>`;
       translationResult.classList.remove('no-results-box');
       
@@ -87,95 +91,46 @@ async function searchForTranslation(translation) {
         translationResult.appendChild(matchInfo);
       }
     } else {
-      // No translation found - show similar phrases from the dictionary
-      await displayDictionaryEntries(translation.sourceLang, translation.targetLang);
+      // No translation found
+      showNoResults(translation);
     }
   } catch (error) {
     console.error("Error searching for translation:", error);
-    // Fallback to showing dictionary entries
-    await displayDictionaryEntries(translation.sourceLang, translation.targetLang);
+    showNoResults(translation);
   }
 }
 
-async function displayDictionaryEntries(sourceLang, targetLang) {
-  try {
-    // Get all dictionary entries for this language pair
-    const response = await fetch(`${FLASK_API_URL}/translate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        sourceLang: sourceLang,
-        targetLang: targetLang,
-        text: '' // Empty text to get all entries
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    
-    if (result.error) {
-      throw new Error(result.error);
-    }
-
-    // Display all dictionary entries as similar phrases
-    const similarPhrasesList = document.getElementById('similar-phrases-list');
-    similarPhrasesList.innerHTML = '';
-
-    // Get the dictionary for this language pair
-    const dictKey = `${sourceLang}-${targetLang}`;
-    const dictionary = TEMPORARY_DICTIONARIES[dictKey] || {};
-
-    for (const [sourceText, targetText] of Object.entries(dictionary)) {
-      similarPhrasesList.innerHTML += `
-        <div class="similar-phrase-item">
-          <div class="original-phrase">"${sourceText}"</div>
-          <div class="translated-phrase">${targetText}</div>
-        </div>
-      `;
-    }
-
-    // Show no results message if dictionary is empty
-    if (Object.keys(dictionary).length === 0) {
-      similarPhrasesList.innerHTML = `<p>No translations available for this language pair.</p>`;
-    }
-  } catch (error) {
-    console.error("Error fetching dictionary entries:", error);
-    const similarPhrasesList = document.getElementById('similar-phrases-list');
-    similarPhrasesList.innerHTML = `<p>Error loading translations. Please try again later.</p>`;
-  }
+function showNoResults(translation) {
+  const translationResult = document.getElementById('translation-result');
+  translationResult.innerHTML = `
+    <div class="no-results-message">
+      <p>No exact translation found for <span class="highlight">"${translation.originalText}"</span></p>
+      <p>Try checking the spelling or contribute a translation below.</p>
+    </div>
+  `;
+  translationResult.classList.add('no-results-box');
+  
+  // Show similar phrases section
+  document.getElementById('similar-phrases-section').style.display = 'block';
 }
 
 function saveTranslationToHistory(translation, translatedText) {
   // Get existing history
   const history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
   
-  // Find and update or add translation
-  const existingIndex = history.findIndex(item => 
-    item.sourceLang === translation.sourceLang &&
-    item.targetLang === translation.targetLang &&
-    item.originalText === translation.originalText
-  );
+  // Create new history item
+  const newTranslation = {
+    ...translation,
+    translatedText,
+    timestamp: new Date().toISOString(),
+    id: Date.now()
+  };
   
-  if (existingIndex !== -1) {
-    history[existingIndex].translatedText = translatedText;
-  } else {
-    const newTranslation = {
-      ...translation,
-      translatedText,
-      timestamp: new Date().toISOString(),
-      id: Date.now()
-    };
-    history.unshift(newTranslation);
-  }
+  // Add to beginning of history
+  const updatedHistory = [newTranslation, ...history];
   
-  // Keep only recent items
-  const updatedHistory = history.slice(0, 100);
-  localStorage.setItem('translationHistory', JSON.stringify(updatedHistory));
+  // Keep only recent items (last 100)
+  localStorage.setItem('translationHistory', JSON.stringify(updatedHistory.slice(0, 100)));
 }
 
 function loadRecentSearches() {
@@ -256,7 +211,7 @@ function setupModalEventListeners() {
   }
   
   // Character counters
-  document.querySelectorAll('input[type="text"]').forEach(input => {
+  document.querySelectorAll('input[type="text"], textarea').forEach(input => {
     input.addEventListener('input', function() {
       const charCountEl = this.closest('.input-wrapper').querySelector('.char-count');
       if (charCountEl) {
@@ -314,26 +269,53 @@ async function handleFormSubmission() {
     submitButton.textContent = 'Submitting...';
     submitButton.disabled = true;
     
-    // In this simplified version, we'll just add to localStorage since we don't have a backend for submissions
-    alert('Thank you for your contribution! In a real implementation, this would be saved to the database.');
+    // Submit to backend
+    const response = await fetch(`${FLASK_API_URL}/contribute`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        source_text: sourceText,
+        target_text: targetText,
+        source_language: sourceLang,
+        target_language: targetLang,
+        source_example: exampleSource,
+        target_example: exampleTarget
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+    
+    // Show success message
+    alert('Thank you for your contribution! It has been submitted for review.');
     closeModal();
     
     // Update the UI to show the new translation
     const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
-    if (currentTranslation) {
+    if (currentTranslation && currentTranslation.originalText === sourceText) {
       const translationResult = document.getElementById('translation-result');
       translationResult.innerHTML = `
         <div class="translation-text">
           ${targetText}
           <div class="translation-note">
-            (Your contribution has been noted locally)
+            (Your contribution has been submitted for review)
           </div>
         </div>
       `;
       translationResult.classList.remove('no-results-box');
     }
   } catch (error) {
-    console.error('Error in form submission process:', error);
+    console.error('Error submitting translation:', error);
     alert('Error submitting your translation. Please try again.');
   } finally {
     // Always reset the button state
@@ -348,54 +330,3 @@ async function handleFormSubmission() {
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
-// Temporary in-memory dictionaries (should match your Flask server)
-const TEMPORARY_DICTIONARIES = {
-  'english-ghomala': {
-    "hello": "mbʉ́ nà", 
-    "thank you": "pua' sʉn",
-    "good": "mbeñ",
-    "morning": "nkɛn",
-    "good morning": "mbʉ́ nkɛn",
-    "night": "ntʉ'",
-    "good night": "mbʉ́ ntʉ'",
-    "how are you": "ò yú háp?",
-    "welcome": "ò twí' mbeñ",
-    "food": "pɛ̂",
-    "water": "nchǐ"
-  },
-  'english-fulfulde': {
-    "hello": "jam", 
-    "thank you": "useko",
-    "good": "woodi",
-    "good morning": "jam weetay",
-    "night": "jemma",
-    "good night": "jam jemma",
-    "how are you": "no mboodaa?",
-    "welcome": "a jaɓɓaama",
-    "food": "nyaamdu",
-    "water": "ndiyam"
-  },
-  'french-ghomala': {
-    "bonjour": "mbʉ́ nà", 
-    "merci": "pua' sʉn",
-    "bien": "mbeñ",
-    "matin": "nkɛn",
-    "bonsoir": "mbʉ́ ntʉ'",
-    "comment allez-vous": "ò yú háp?",
-    "bienvenue": "ò twí' mbeñ",
-    "nourriture": "pɛ̂",
-    "eau": "nchǐ"
-  },
-  'french-fulfulde': {
-    "bonjour": "jam", 
-    "merci": "useko",
-    "bien": "woodi",
-    "matin": "weetay",
-    "bonsoir": "jam jemma",
-    "comment allez-vous": "no mboodaa?",
-    "bienvenue": "a jaɓɓaama",
-    "nourriture": "nyaamdu",
-    "eau": "ndiyam"
-  }
-};
