@@ -1,8 +1,7 @@
-// Import the TranslationService
-import { TranslationService } from './services/firebase_services.js';
+// results.js - Frontend code for translation results page
 
-// Initialize translation service
-const translationService = new TranslationService();
+// Base URL for Flask API
+const FLASK_API_URL = 'http://localhost:5000/api'; // Update this if your Flask server is hosted elsewhere
 
 document.addEventListener("DOMContentLoaded", () => {
   // Get current translation from localStorage
@@ -48,81 +47,90 @@ function setupTranslationUI(translation) {
 
 async function searchForTranslation(translation) {
   try {
-    // Search for exact translation
-    const results = await translationService.searchTranslations(
-      translation.sourceLang,
-      translation.targetLang,
-      translation.originalText
-    );
+    // Show loading state
+    const translationResult = document.getElementById('translation-result');
+    translationResult.innerHTML = '<div class="loading-spinner"></div>';
     
-    if (results && results.length > 0) {
+    // Search for translation via Flask API
+    const response = await fetch(`${FLASK_API_URL}/translate`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sourceLang: translation.sourceLang,
+        targetLang: translation.targetLang,
+        text: translation.originalText
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    if (result.translation && !result.translation.startsWith("Sorry, no translation found")) {
       // Show translation result
-      const translationResult = document.getElementById('translation-result');
-      translationResult.innerHTML = `<div class="translation-text">${results[0].targetText}</div>`;
+      translationResult.innerHTML = `<div class="translation-text">${result.translation}</div>`;
       translationResult.classList.remove('no-results-box');
       
       // Save translation to history
-      saveTranslationToHistory(translation, results[0].targetText);
-    } else {
-      // Search for similar translations
-      const similarResults = await translationService.searchSimilarTranslations(
-        translation.sourceLang,
-        translation.targetLang,
-        translation.originalText
-      );
+      saveTranslationToHistory(translation, result.translation);
       
-      // Display similar translations
-      displaySimilarTranslations(similarResults);
+      // Display match info if available
+      if (result.matchType === 'fuzzy') {
+        const matchInfo = document.createElement('div');
+        matchInfo.className = 'match-info';
+        matchInfo.textContent = `Matched similar phrase: "${result.matchedWord}" (${result.fuzzyMatchScore}% match)`;
+        translationResult.appendChild(matchInfo);
+      }
+    } else {
+      // No translation found
+      showNoResults(translation);
     }
   } catch (error) {
     console.error("Error searching for translation:", error);
+    showNoResults(translation);
   }
 }
 
-function displaySimilarTranslations(translations) {
-  const similarPhrasesList = document.getElementById('similar-phrases-list');
+function showNoResults(translation) {
+  const translationResult = document.getElementById('translation-result');
+  translationResult.innerHTML = `
+    <div class="no-results-message">
+      <p>No exact translation found for <span class="highlight">"${translation.originalText}"</span></p>
+      <p>Try checking the spelling or contribute a translation below.</p>
+    </div>
+  `;
+  translationResult.classList.add('no-results-box');
   
-  if (translations && translations.length > 0) {
-    similarPhrasesList.innerHTML = '';
-    translations.forEach(translation => {
-      similarPhrasesList.innerHTML += `
-        <div class="similar-phrase-item">
-          <div class="original-phrase">"${translation.sourceText}"</div>
-          <div class="translated-phrase">${translation.targetText}</div>
-        </div>
-      `;
-    });
-  } else {
-    similarPhrasesList.innerHTML = `<p>No similar translations found.</p>`;
-  }
+  // Show similar phrases section
+  document.getElementById('similar-phrases-section').style.display = 'block';
 }
 
 function saveTranslationToHistory(translation, translatedText) {
   // Get existing history
   const history = JSON.parse(localStorage.getItem('translationHistory') || '[]');
   
-  // Find and update or add translation
-  const existingIndex = history.findIndex(item => 
-    item.sourceLang === translation.sourceLang &&
-    item.targetLang === translation.targetLang &&
-    item.originalText === translation.originalText
-  );
+  // Create new history item
+  const newTranslation = {
+    ...translation,
+    translatedText,
+    timestamp: new Date().toISOString(),
+    id: Date.now()
+  };
   
-  if (existingIndex !== -1) {
-    history[existingIndex].translatedText = translatedText;
-  } else {
-    const newTranslation = {
-      ...translation,
-      translatedText,
-      timestamp: new Date().toISOString(),
-      id: Date.now()
-    };
-    history.unshift(newTranslation);
-  }
+  // Add to beginning of history
+  const updatedHistory = [newTranslation, ...history];
   
-  // Keep only recent items
-  const updatedHistory = history.slice(0, 100);
-  localStorage.setItem('translationHistory', JSON.stringify(updatedHistory));
+  // Keep only recent items (last 100)
+  localStorage.setItem('translationHistory', JSON.stringify(updatedHistory.slice(0, 100)));
 }
 
 function loadRecentSearches() {
@@ -203,7 +211,7 @@ function setupModalEventListeners() {
   }
   
   // Character counters
-  document.querySelectorAll('input[type="text"]').forEach(input => {
+  document.querySelectorAll('input[type="text"], textarea').forEach(input => {
     input.addEventListener('input', function() {
       const charCountEl = this.closest('.input-wrapper').querySelector('.char-count');
       if (charCountEl) {
@@ -255,60 +263,59 @@ async function handleFormSubmission() {
   }
   
   try {
-    // Create translation data
-    const translationData = {
-      sourceText,
-      targetText,
-      sourceLang,
-      targetLang,
-      examples: []
-    };
-    
-    // Add example if provided
-    if (exampleSource && exampleTarget) {
-      translationData.examples.push({
-        source: exampleSource,
-        target: exampleTarget
-      });
-    }
-    
     // Show loading state
     const submitButton = document.querySelector('.submit-translation-btn');
     const originalButtonText = submitButton.textContent;
     submitButton.textContent = 'Submitting...';
     submitButton.disabled = true;
     
-    console.log("About to submit translation data:", translationData);
+    // Submit to backend
+    const response = await fetch(`${FLASK_API_URL}/contribute`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        source_text: sourceText,
+        target_text: targetText,
+        source_language: sourceLang,
+        target_language: targetLang,
+        source_example: exampleSource,
+        target_example: exampleTarget
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
     
-    try {
-      // Submit to Firebase
-      await translationService.addTranslation(translationData);
-      
-      // Show success and close modal
-      alert('Thank you for your contribution! Your translation has been submitted for review.');
-      closeModal();
-      
-      // Update the UI to show the new translation
-      const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
-      if (currentTranslation) {
-        const translationResult = document.getElementById('translation-result');
-        translationResult.innerHTML = `
-          <div class="translation-text">
-            ${targetText}
-            <div class="translation-note">
-              (Your contribution has been submitted and will be reviewed by our team)
-            </div>
-          </div>
-        `;
-        translationResult.classList.remove('no-results-box');
-      }
-    } catch (firebaseError) {
-      console.error('Firebase error:', firebaseError);
-      alert(`Error: ${firebaseError.message || 'Could not save translation. Please try again.'}`);
+    if (result.error) {
+      throw new Error(result.error);
     }
     
+    // Show success message
+    alert('Thank you for your contribution! It has been submitted for review.');
+    closeModal();
+    
+    // Update the UI to show the new translation
+    const currentTranslation = JSON.parse(localStorage.getItem('currentTranslation') || 'null');
+    if (currentTranslation && currentTranslation.originalText === sourceText) {
+      const translationResult = document.getElementById('translation-result');
+      translationResult.innerHTML = `
+        <div class="translation-text">
+          ${targetText}
+          <div class="translation-note">
+            (Your contribution has been submitted for review)
+          </div>
+        </div>
+      `;
+      translationResult.classList.remove('no-results-box');
+    }
   } catch (error) {
-    console.error('Error in form submission process:', error);
+    console.error('Error submitting translation:', error);
     alert('Error submitting your translation. Please try again.');
   } finally {
     // Always reset the button state

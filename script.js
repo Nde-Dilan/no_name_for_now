@@ -760,4 +760,5 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("mouseup", () => {
     isDragging = false;
   });
+
 });
