@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html>
-<body>
-  <script>
-    fetch('http://localhost:5000/api/translate', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({sourceLang:"french", targetLang:"ghomala", text:"bonjour"})
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error('Error:', error));
-  </script>
-</body>
+  <body>
+    <script>
+      fetch("https://group2-backend-nfk0.onrender.com/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceLang: "french",
+          targetLang: "ghomala",
+          text: "bonjour",
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => console.log(data))
+        .catch((error) => console.error("Error:", error));
+    </script>
+  </body>
 </html>
